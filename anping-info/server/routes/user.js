@@ -56,6 +56,30 @@ router.get('/my', authMiddleware, (req, res) => {
   }
 })
 
+// 编辑我的帖子
+router.put('/:id', authMiddleware, (req, res) => {
+  try {
+    const post = db.prepare('SELECT * FROM posts WHERE id = ? AND user_id = ?').get(req.params.id, req.userId)
+    if (!post) return res.json({ code: 404, message: '帖子不存在或无权编辑' })
+
+    const { category_id, title, content, price, contact, location } = req.body
+    if (!category_id || !title || !content || !contact) {
+      return res.json({ code: 400, message: '请填写所有必填字段' })
+    }
+
+    db.prepare(`
+      UPDATE posts 
+      SET category_id = ?, title = ?, content = ?, price = ?, contact = ?, location = ?, status = 'pending', updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(category_id, title, content, Number(price) || 0, contact, location || '', req.params.id)
+
+    res.json({ code: 200, message: '修改成功，等待重新审核' })
+  } catch (err) {
+    console.error(err)
+    res.json({ code: 500, message: '服务器错误' })
+  }
+})
+
 // 删除我的帖子
 router.delete('/:id', authMiddleware, (req, res) => {
   try {
