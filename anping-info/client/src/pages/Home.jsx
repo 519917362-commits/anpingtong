@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 
 const MAIN_CATEGORIES = [
   { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'bg-red-500', desc: '企业招人·个人求职' },
+  { slug: 'job-seeker', name: '求职简历', icon: '📋', color: 'bg-rose-500', desc: '个人简历·找工作' },
   { slug: 'house', name: '房屋租售', icon: '🏠', color: 'bg-orange-500', desc: '租房·买房·商铺' },
   { slug: 'life', name: '家政保洁', icon: '🧹', color: 'bg-amber-500', desc: '保洁·搬家·维修' },
   { slug: 'shop-transfer', name: '招商转让', icon: '🏪', color: 'bg-lime-500', desc: '旺铺转让·合伙创业' },
   { slug: 'secondhand', name: '闲置物品', icon: '🔄', color: 'bg-green-500', desc: '二手买卖·以物换物' },
   { slug: 'education', name: '教育培训', icon: '📚', color: 'bg-emerald-500', desc: '培训·家教·课程' },
-  { slug: 'wechat-group', name: '本地微信群', icon: '💬', color: 'bg-teal-500', desc: '微信群·社区交流' },
   { slug: 'companies', name: '同城商家', icon: '🏢', color: 'bg-cyan-500', desc: '本地商家·企业黄页' },
 ]
 
