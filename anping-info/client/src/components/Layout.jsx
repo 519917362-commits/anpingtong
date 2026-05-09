@@ -7,7 +7,16 @@ export default function Layout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [keyword, setKeyword] = useState('')
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [notice, setNotice] = useState(null)
+
+  useEffect(() => {
+    // 获取最新一条公告
+    fetch('/api/notices?type=notice&pageSize=1').then(r => r.json()).then(data => {
+      if (data.code === 200 && data.data.list.length > 0) {
+        setNotice(data.data.list[0])
+      }
+    })
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -22,8 +31,34 @@ export default function Layout() {
     navigate('/')
   }
 
+  const NAV_ITEMS = [
+    { name: '首页', path: '/' },
+    { name: '房屋租售', path: '/category/house' },
+    { name: '车辆服务', path: '/category/car' },
+    { name: '招聘求职', path: '/jobs' },
+    { name: '企业黄页', path: '/companies' },
+    { name: '商务服务', path: '/category/business' },
+    { name: '二手物品', path: '/category/used' },
+    { name: '便民工具', path: '/tools' },
+    { name: '公告', path: '/notices' },
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* 顶部公告栏 */}
+      {notice && (
+        <Link
+          to={`/notice/${notice.id}`}
+          className="block bg-blue-600 text-white text-xs py-1.5 hover:bg-blue-700 transition"
+        >
+          <div className="max-w-6xl mx-auto px-4 flex items-center gap-2">
+            <span className="bg-white text-blue-600 font-bold text-xs px-1.5 py-0.5 rounded shrink-0">公告</span>
+            <span className="truncate">{notice.title}</span>
+            <span className="text-blue-200 shrink-0 ml-2">查看 →</span>
+          </div>
+        </Link>
+      )}
+
       {/* 顶部栏 */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         {/* 顶部小栏 */}
@@ -31,7 +66,7 @@ export default function Layout() {
           <div className="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center">
             <span>欢迎访问安平同城网，安平县本地便民信息平台</span>
             <div className="flex items-center gap-4">
-              <a href="http://beian.miit.gov.cn" target="_blank" className="hover:text-gray-300">冀ICP备14020733号</a>
+              <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">冀ICP备14020733号</a>
               {!user ? (
                 <>
                   <Link to="/login" className="hover:text-gray-300">登录</Link>
@@ -84,17 +119,7 @@ export default function Layout() {
         <nav className="border-t border-gray-100">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex gap-1 overflow-x-auto text-sm">
-              {[
-                { name: '首页', path: '/' },
-                { name: '房屋租售', path: '/category/house' },
-                { name: '车辆服务', path: '/category/car' },
-                { name: '招聘求职', path: '/category/job' },
-                { name: '商务服务', path: '/category/business' },
-                { name: '二手物品', path: '/category/used' },
-                { name: '生活服务', path: '/category/life' },
-                { name: '教育培训', path: '/category/edu' },
-                { name: '便民工具', path: '/tools' },
-              ].map(item => (
+              {NAV_ITEMS.map(item => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -124,14 +149,29 @@ export default function Layout() {
             <div>
               <div className="text-white text-sm font-medium mb-2">安平同城网</div>
               <p className="leading-relaxed">安平县本地分类信息平台，免费发布房屋租售、招聘求职、二手物品等信息。</p>
+              <div className="mt-2 text-gray-500">
+                <p>📞 客服热线：400-888-8888</p>
+                <p>📱 微信：anping_tongcheng</p>
+              </div>
             </div>
             <div>
               <div className="text-white text-sm font-medium mb-2">信息分类</div>
               <div className="space-y-1">
-                <Link to="/category/house" className="block hover:text-white">房屋租售</Link>
-                <Link to="/category/job" className="block hover:text-white">招聘求职</Link>
-                <Link to="/category/car" className="block hover:text-white">车辆服务</Link>
-                <Link to="/category/used" className="block hover:text-white">二手物品</Link>
+                <Link to="/category/house" className="block hover:text-white">🏠 房屋租售</Link>
+                <Link to="/jobs" className="block hover:text-white">💼 招聘求职</Link>
+                <Link to="/category/car" className="block hover:text-white">🚗 车辆服务</Link>
+                <Link to="/category/used" className="block hover:text-white">🔄 二手物品</Link>
+                <Link to="/category/business" className="block hover:text-white">🛠️ 商务服务</Link>
+                <Link to="/category/life" className="block hover:text-white">☕ 生活服务</Link>
+              </div>
+            </div>
+            <div>
+              <div className="text-white text-sm font-medium mb-2">企业服务</div>
+              <div className="space-y-1">
+                <Link to="/companies" className="block hover:text-white">🏢 企业黄页</Link>
+                <Link to="/notices" className="block hover:text-white">📢 平台公告</Link>
+                <Link to="/page/about" className="block hover:text-white">ℹ️ 关于我们</Link>
+                <Link to="/page/contact" className="block hover:text-white">📞 联系我们</Link>
               </div>
             </div>
             <div>
@@ -141,25 +181,18 @@ export default function Layout() {
                 <Link to="/tools/wiremesh" className="block hover:text-white">🛠️ 丝网报价</Link>
                 <Link to="/tools/materials" className="block hover:text-white">📊 原材料行情</Link>
               </div>
-            </div>
-            <div>
-              <div className="text-white text-sm font-medium mb-2">帮助与协议</div>
-              <div className="space-y-1">
-                <a className="block hover:text-white cursor-pointer">用户服务协议</a>
-                <a className="block hover:text-white cursor-pointer">信息发布规范</a>
-                <a className="block hover:text-white cursor-pointer">隐私政策</a>
-              </div>
-            </div>
-            <div>
-              <div className="text-white text-sm font-medium mb-2">联系方式</div>
-              <div className="space-y-1">
-                <p>客服微信：anpingtong</p>
-                <p>地址：河北省衡水市安平县</p>
+              <div className="mt-3">
+                <div className="text-white text-sm font-medium mb-2">法律声明</div>
+                <div className="space-y-1">
+                  <Link to="/page/agreement" className="block hover:text-white">📄 用户协议</Link>
+                  <Link to="/page/privacy" className="block hover:text-white">🔒 隐私政策</Link>
+                </div>
               </div>
             </div>
           </div>
           <div className="border-t border-gray-700 pt-4 text-center">
-            <p>© 2025 安平同城网 · 冀ICP备14020733号 · 安平县本地便民信息平台</p>
+            <p>© 2025 安平同城网 · 冀ICP备14020733号 · 冀公网安备13112500000000号</p>
+            <p className="mt-1">安平同城网仅提供信息存储空间，平台信息由用户自行发布，因信息交易产生的一切后果由发布者自行承担。</p>
           </div>
         </div>
       </footer>

@@ -13,6 +13,13 @@ import ToolsHome from './pages/tools/ToolsHome'
 import LogisticsTool from './pages/tools/LogisticsTool'
 import WiremeshTool from './pages/tools/WiremeshTool'
 import MaterialsTool from './pages/tools/MaterialsTool'
+import Jobs from './pages/Jobs'
+import JobDetail from './pages/JobDetail'
+import Companies from './pages/Companies'
+import CompanyDetail from './pages/CompanyDetail'
+import Notices from './pages/Notices'
+import NoticeDetail from './pages/NoticeDetail'
+import StaticPage from './pages/StaticPage'
 
 export default function App() {
   return (
@@ -32,6 +39,17 @@ export default function App() {
             <Route path="tools/logistics" element={<LogisticsTool />} />
             <Route path="tools/wiremesh" element={<WiremeshTool />} />
             <Route path="tools/materials" element={<MaterialsTool />} />
+            {/* 招聘专区 */}
+            <Route path="jobs" element={<Jobs />} />
+            <Route path="job/:id" element={<JobDetail />} />
+            {/* 企业黄页 */}
+            <Route path="companies" element={<Companies />} />
+            <Route path="company/:id" element={<CompanyDetail />} />
+            {/* 公告系统 */}
+            <Route path="notices" element={<Notices />} />
+            <Route path="notice/:id" element={<NoticeDetail />} />
+            {/* 静态页面 */}
+            <Route path="page/:slug" element={<StaticPage />} />
           </Route>
         </Routes>
       </AuthProvider>

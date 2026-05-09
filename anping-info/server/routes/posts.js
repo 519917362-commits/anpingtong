@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
     const offset = (page - 1) * pageSize
 
     let sql = `
-      SELECT p.*, u.username, c.name as category_name, c.icon as category_icon
+      SELECT p.*, u.username, c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
@@ -70,7 +70,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const post = db.prepare(`
-      SELECT p.*, u.username, c.name as category_name, c.icon as category_icon
+      SELECT p.*, u.username, c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id

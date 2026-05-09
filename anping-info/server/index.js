@@ -7,6 +7,9 @@ import authRoutes from './routes/auth.js'
 import postsRoutes from './routes/posts.js'
 import userRoutes from './routes/user.js'
 import adminRoutes from './routes/admin.js'
+import noticesRoutes from './routes/notices.js'
+import companiesRoutes from './routes/companies.js'
+import staticRoutes from './routes/static.js'
 
 // 初始化数据库（建表 + 默认数据）
 import './db/schema.js'
@@ -23,6 +26,9 @@ app.use('/api/auth', authRoutes)
 app.use('/api/posts', postsRoutes)
 app.use('/api/user/posts', userRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/notices', noticesRoutes)
+app.use('/api/companies', companiesRoutes)
+app.use('/api/static', staticRoutes)
 
 // 健康检查
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }))

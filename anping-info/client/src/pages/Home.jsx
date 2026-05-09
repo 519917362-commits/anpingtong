@@ -37,15 +37,24 @@ function formatPrice(price) {
 export default function Home() {
   const [categories, setCategories] = useState([])
   const [posts, setPosts] = useState([])
+  const [jobs, setJobs] = useState([])
+  const [companies, setCompanies] = useState([])
+  const [notices, setNotices] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
       fetch('/api/posts/categories').then(r => r.json()),
       fetch('/api/posts?pageSize=20').then(r => r.json()),
-    ]).then(([catData, postData]) => {
+      fetch('/api/posts?category=job&status=approved&pageSize=6').then(r => r.json()),
+      fetch('/api/companies?pageSize=6').then(r => r.json()),
+      fetch('/api/notices?pageSize=3').then(r => r.json()),
+    ]).then(([catData, postData, jobData, companyData, noticeData]) => {
       if (catData.code === 200) setCategories(catData.data)
       if (postData.code === 200) setPosts(postData.data.list)
+      if (jobData.code === 200) setJobs(jobData.data.list)
+      if (companyData.code === 200) setCompanies(companyData.data.list)
+      if (noticeData.code === 200) setNotices(noticeData.data.list)
     }).finally(() => setLoading(false))
   }, [])
 
@@ -68,6 +77,25 @@ export default function Home() {
           <span className="bg-white/20 px-3 py-1 rounded-full">🔄 二手物品</span>
         </div>
       </div>
+
+      {/* 热门公告 */}
+      {notices.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-bold text-gray-800 text-sm">📢 最新公告</h2>
+            <Link to="/notices" className="text-xs text-primary hover:underline">查看全部 →</Link>
+          </div>
+          <div className="space-y-2">
+            {notices.map(n => (
+              <Link key={n.id} to={`/notice/${n.id}`} className="flex items-center gap-2 text-sm hover:bg-gray-50 p-2 rounded-lg transition">
+                <span className="bg-blue-100 text-blue-600 text-xs px-1.5 py-0.5 rounded shrink-0">公告</span>
+                <span className="text-gray-700 truncate flex-1">{n.title}</span>
+                <span className="text-xs text-gray-400 shrink-0">{timeAgo(n.created_at)}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 分类导航 */}
       <div>
@@ -120,6 +148,62 @@ export default function Home() {
         </div>
       </div>
 
+      {/* 热门招聘 */}
+      {jobs.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-gray-800 text-lg">💼 热门招聘</h2>
+            <Link to="/jobs" className="text-xs text-primary hover:underline">更多职位 →</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {jobs.slice(0, 6).map(job => (
+              <Link
+                key={job.id}
+                to={`/job/${job.id}`}
+                className="card-hover bg-white rounded-lg p-4 flex gap-3 border border-gray-100 hover:border-orange-200"
+              >
+                <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-xl shrink-0">💼</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-medium text-gray-900 text-sm line-clamp-1">{job.title}</h3>
+                    <span className="text-orange-500 font-bold text-sm shrink-0">
+                      {job.salary_min ? `${Number(job.salary_min).toLocaleString()}+` : '面议'}/月
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                    <span>📍 {job.location || '安平县'}</span>
+                    <span>{timeAgo(job.created_at)}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 知名企业 */}
+      {companies.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-gray-800 text-lg">🏢 知名企业</h2>
+            <Link to="/companies" className="text-xs text-primary hover:underline">查看全部 →</Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {companies.slice(0, 6).map(c => (
+              <Link
+                key={c.id}
+                to={`/company/${c.id}`}
+                className="card-hover bg-white rounded-xl p-4 border border-gray-100 hover:border-indigo-200 text-center"
+              >
+                <div className="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-3xl mx-auto mb-2">🏭</div>
+                <div className="text-sm font-medium text-gray-800 truncate">{c.name}</div>
+                <div className="text-xs text-gray-400 mt-0.5">{c.industry || '综合企业'}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 最新信息 */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -147,7 +231,7 @@ export default function Home() {
                 className="card-hover bg-white rounded-lg p-4 flex gap-4 border border-gray-100"
               >
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl shrink-0">
-                  {CATEGORY_ICONS[post.category_id] || CATEGORY_ICONS.other}
+                  {CATEGORY_ICONS[post.category_slug] || CATEGORY_ICONS.other}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
