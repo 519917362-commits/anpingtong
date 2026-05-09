@@ -69,6 +69,7 @@ function Sidebar({ current }) {
     { path: '/posts', label: '📋 信息管理', key: 'posts' },
     { path: '/notices', label: '📢 公告管理', key: 'notices' },
     { path: '/companies', label: '🏢 公司管理', key: 'companies' },
+    { path: '/banners', label: '🎨 Banner管理', key: 'banners' },
     { path: '/static-pages', label: '📄 页面管理', key: 'static-pages' },
     { path: '/categories', label: '📂 分类管理', key: 'categories' },
     { path: '/users', label: '👥 用户管理', key: 'users' },
@@ -671,6 +672,196 @@ function StaticPagesPage() {
   )
 }
 
+// ── Banner管理页 ──────────────────────────────────────────
+function BannersPage() {
+  const [banners, setBanners] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [form, setForm] = useState({ title: '', image_url: '', link_url: '', link_type: 'none', sort_order: 0, start_date: '', end_date: '' })
+  const [editingId, setEditingId] = useState(null)
+  const [msg, setMsg] = useState('')
+
+  const load = () => {
+    setLoading(true)
+    api('/admin/banners').then(r => r.json()).then(d => {
+      if (d.code === 200) setBanners(d.data)
+    }).finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setMsg('')
+    const body = { ...form, sort_order: Number(form.sort_order) || 0 }
+    let res, d
+    if (editingId) {
+      res = await api(`/admin/banners/${editingId}`, { method: 'PUT', body: JSON.stringify(body) })
+      d = await res.json()
+    } else {
+      res = await api('/admin/banners', { method: 'POST', body: JSON.stringify(body) })
+      d = await res.json()
+    }
+    if (d.code === 200) {
+      setMsg(editingId ? '更新成功' : '添加成功')
+      setForm({ title: '', image_url: '', link_url: '', link_type: 'none', sort_order: 0, start_date: '', end_date: '' })
+      setEditingId(null)
+      load()
+    } else {
+      setMsg(d.message || '操作失败')
+    }
+    setTimeout(() => setMsg(''), 3000)
+  }
+
+  const startEdit = (b) => {
+    setEditingId(b.id)
+    setForm({
+      title: b.title,
+      image_url: b.image_url || '',
+      link_url: b.link_url || '',
+      link_type: b.link_type || 'none',
+      sort_order: b.sort_order || 0,
+      start_date: b.start_date || '',
+      end_date: b.end_date || ''
+    })
+  }
+
+  const toggleStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
+    const d = await api(`/admin/banners/${id}`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) }).then(r => r.json())
+    if (d.code === 200) load()
+    else alert(d.message || '操作失败')
+  }
+
+  const del = async (id) => {
+    if (!confirm('确定删除该Banner？')) return
+    const d = await api(`/admin/banners/${id}`, { method: 'DELETE' }).then(r => r.json())
+    if (d.code === 200) load()
+  }
+
+  const reset = () => {
+    setEditingId(null)
+    setForm({ title: '', image_url: '', link_url: '', link_type: 'none', sort_order: 0, start_date: '', end_date: '' })
+  }
+
+  return (
+    <div className="p-6">
+      <h2 className="text-lg font-bold mb-4">🎨 Banner管理</h2>
+
+      {/* 添加/编辑表单 */}
+      <form onSubmit={submit} className="bg-white rounded-xl border p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm font-medium">{editingId ? '✏️ 编辑Banner' : '➕ 添加Banner'}</span>
+          {msg && <span className="text-sm text-green-600">{msg}</span>}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+          <div className="col-span-2">
+            <label className="text-xs text-gray-500 mb-1 block">标题 *</label>
+            <input value={form.title} onChange={e => setForm({...form, title: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" placeholder="Banner标题" required />
+          </div>
+          <div className="col-span-2">
+            <label className="text-xs text-gray-500 mb-1 block">图片URL *</label>
+            <input value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" placeholder="https://..." required />
+          </div>
+          <div className="col-span-2">
+            <label className="text-xs text-gray-500 mb-1 block">跳转链接</label>
+            <input value={form.link_url} onChange={e => setForm({...form, link_url: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" placeholder="/category/house 或 https://..." />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">链接类型</label>
+            <select value={form.link_type} onChange={e => setForm({...form, link_type: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm">
+              <option value="none">不跳转</option>
+              <option value="post">帖子详情</option>
+              <option value="category">分类页面</option>
+              <option value="url">外部链接</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">排序权重</label>
+            <input type="number" value={form.sort_order} onChange={e => setForm({...form, sort_order: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" placeholder="数字越大越靠前" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">开始日期</label>
+            <input type="date" value={form.start_date} onChange={e => setForm({...form, start_date: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">结束日期</label>
+            <input type="date" value={form.end_date} onChange={e => setForm({...form, end_date: e.target.value})}
+              className="w-full border rounded-lg px-3 py-1.5 text-sm" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button type="submit" className="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium">
+            {editingId ? '更新' : '添加'}
+          </button>
+          {editingId && (
+            <button type="button" onClick={reset} className="border px-4 py-1.5 rounded-lg text-sm">取消</button>
+          )}
+        </div>
+      </form>
+
+      {/* Banner列表 */}
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="px-3 py-2 font-medium text-gray-500">预览</th>
+              <th className="px-3 py-2 font-medium text-gray-500">标题</th>
+              <th className="px-3 py-2 font-medium text-gray-500">类型</th>
+              <th className="px-3 py-2 font-medium text-gray-500">状态</th>
+              <th className="px-3 py-2 font-medium text-gray-500">排序</th>
+              <th className="px-3 py-2 font-medium text-gray-500">有效期</th>
+              <th className="px-3 py-2 font-medium text-gray-500">操作</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              <tr><td colSpan="7" className="text-center py-8 text-gray-400">加载中...</td></tr>
+            ) : banners.length === 0 ? (
+              <tr><td colSpan="7" className="text-center py-8 text-gray-400">暂无Banner，点击上方添加</td></tr>
+            ) : banners.map(b => (
+              <tr key={b.id} className="hover:bg-gray-50">
+                <td className="px-3 py-2">
+                  {b.image_url ? (
+                    <img src={b.image_url} alt={b.title} className="w-16 h-10 object-cover rounded" />
+                  ) : (
+                    <div className="w-16 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">无图</div>
+                  )}
+                </td>
+                <td className="px-3 py-2 font-medium">{b.title}</td>
+                <td className="px-3 py-2 text-gray-500">
+                  {{ none: '无跳转', post: '帖子', category: '分类', url: '外链' }[b.link_type] || b.link_type}
+                </td>
+                <td className="px-3 py-2">
+                  <button onClick={() => toggleStatus(b.id, b.status)}
+                    className={`px-2 py-0.5 rounded text-xs ${b.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                    {b.status === 'active' ? '显示' : '隐藏'}
+                  </button>
+                </td>
+                <td className="px-3 py-2 text-gray-400">{b.sort_order}</td>
+                <td className="px-3 py-2 text-xs text-gray-400">
+                  {b.start_date ? b.start_date.slice(0, 10) : '—'}
+                  {b.start_date || b.end_date ? ' ~ ' : ''}
+                  {b.end_date ? b.end_date.slice(0, 10) : '—'}
+                </td>
+                <td className="px-3 py-2">
+                  <button onClick={() => startEdit(b)} className="text-primary text-xs mr-2 hover:underline">编辑</button>
+                  <button onClick={() => del(b.id)} className="text-red-500 text-xs hover:underline">删除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // ── 用户管理页 ───────────────────────────────────────────
 function UsersPage() {
   const [users, setUsers] = useState([])
@@ -731,6 +922,7 @@ function AdminApp() {
                   <Route path="/posts" element={<PostsPage />} />
                   <Route path="/notices" element={<NoticesPage />} />
                   <Route path="/companies" element={<CompaniesPage />} />
+                  <Route path="/banners" element={<BannersPage />} />
                   <Route path="/static-pages" element={<StaticPagesPage />} />
                   <Route path="/categories" element={<CategoriesPage />} />
                   <Route path="/users" element={<UsersPage />} />

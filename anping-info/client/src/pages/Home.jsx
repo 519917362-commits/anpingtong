@@ -49,6 +49,7 @@ export default function Home() {
   const [companies, setCompanies] = useState([])
   const [notices, setNotices] = useState([])
   const [promotions, setPromotions] = useState([])
+  const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
   const [keyword, setKeyword] = useState('')
   const navigate = useNavigate()
@@ -62,21 +63,32 @@ export default function Home() {
       fetch('/api/companies?pageSize=6').then(r => r.json()),
       fetch('/api/notices?pageSize=3').then(r => r.json()),
       fetch('/api/posts?category=promotions&status=approved&pageSize=4').then(r => r.json()),
-    ]).then(([postData, jobData, companyData, noticeData, promoData]) => {
+      fetch('/api/banners').then(r => r.json()),
+    ]).then(([postData, jobData, companyData, noticeData, promoData, bannerData]) => {
       if (postData.code === 200) setPosts(postData.data.list)
       if (jobData.code === 200) setJobs(jobData.data.list)
       if (companyData.code === 200) setCompanies(companyData.data.list)
       if (noticeData.code === 200) setNotices(noticeData.data.list)
       if (promoData.code === 200) setPromotions(promoData.data.list)
+      if (bannerData.code === 200 && bannerData.data.length > 0) {
+        setBanners(bannerData.data)
+      }
     }).finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentBanner(prev => (prev + 1) % 3)
-    }, 5000)
-    return () => clearInterval(timer)
-  }, [])
+    if (banners.length === 0) {
+      const timer = setInterval(() => {
+        setCurrentBanner(prev => (prev + 1) % 3)
+      }, 5000)
+      return () => clearInterval(timer)
+    } else {
+      const timer = setInterval(() => {
+        setCurrentBanner(prev => (prev + 1) % banners.length)
+      }, 5000)
+      return () => clearInterval(timer)
+    }
+  }, [banners.length])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -89,17 +101,45 @@ export default function Home() {
     navigate(`/search?keyword=${encodeURIComponent(kw)}`)
   }
 
-  const BANNERS = [
+  const handleBannerClick = (banner) => {
+    if (banner.link_url && banner.link_type !== 'none') {
+      if (banner.link_type === 'post') {
+        navigate(`/post/${banner.link_url}`)
+      } else if (banner.link_type === 'category') {
+        navigate(`/category/${banner.link_url}`)
+      } else if (banner.link_type === 'url') {
+        window.open(banner.link_url, '_blank')
+      } else {
+        navigate(banner.link_url)
+      }
+    }
+  }
+
+  const DEFAULT_BANNERS = [
     { title: '安平同城网', sub: '安平县本地分类信息平台', gradient: 'from-blue-600 via-blue-500 to-cyan-500', icon: '🏠' },
     { title: '免费发布信息', sub: '房屋租售 · 招聘求职 · 二手交易', gradient: 'from-orange-500 via-amber-500 to-yellow-500', icon: '📢' },
     { title: '便民服务', sub: '物流查询 · 丝网报价 · 拼车出行', gradient: 'from-emerald-500 via-teal-500 to-cyan-500', icon: '🛠️' },
   ]
 
+  const displayBanners = banners.length > 0 ? banners : DEFAULT_BANNERS
+  const currentBannerData = displayBanners[currentBanner]
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Hero Banner with Search */}
-      <div className="relative overflow-hidden rounded-2xl">
-        <div className={`absolute inset-0 bg-gradient-to-r ${BANNERS[currentBanner].gradient} transition-all duration-700`} />
+      <div 
+        className="relative overflow-hidden rounded-2xl cursor-pointer"
+        onClick={() => banners.length > 0 ? handleBannerClick(banners[currentBanner]) : null}
+      >
+        {banners.length > 0 && banners[currentBanner].image_url ? (
+          <img 
+            src={banners[currentBanner].image_url} 
+            alt={banners[currentBanner].title}
+            className="w-full h-48 sm:h-64 object-cover"
+          />
+        ) : (
+          <div className={`absolute inset-0 bg-gradient-to-r ${currentBannerData.gradient} transition-all duration-700`} />
+        )}
         <div className="absolute inset-0 bg-black/10" />
         
         {/* Decorative elements */}
@@ -110,11 +150,11 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm mb-4">
-                <span className="text-xl">{BANNERS[currentBanner].icon}</span>
-                <span>{BANNERS[currentBanner].sub}</span>
+                <span className="text-xl">{currentBannerData.icon}</span>
+                <span>{currentBannerData.sub}</span>
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-                {BANNERS[currentBanner].title}
+                {currentBannerData.title}
               </h1>
               <p className="text-white/80 text-base sm:text-lg">
                 快速传播 · 免费发布 · 真实可靠
@@ -155,10 +195,10 @@ export default function Home() {
         
         {/* Banner indicators */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {BANNERS.map((_, i) => (
+          {displayBanners.map((_, i) => (
             <button
               key={i}
-              onClick={() => setCurrentBanner(i)}
+              onClick={(e) => { e.stopPropagation(); setCurrentBanner(i) }}
               className={`w-2 h-2 rounded-full transition-all ${currentBanner === i ? 'bg-white w-6' : 'bg-white/50'}`}
             />
           ))}
@@ -213,6 +253,15 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Ad Banner Slot 1 - Between Categories and Main Content */}
+      <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-1">
+        <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4 text-center">
+          <p className="text-sm text-purple-600 font-medium mb-1">📢 广告位招商中</p>
+          <p className="text-xs text-purple-400">首页Banner广告位出租，精准触达安平本地用户</p>
+          <p className="text-xs text-purple-500 mt-2">咨询热线：400-888-8888</p>
+        </div>
+      </div>
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Jobs & Promotions */}
@@ -258,6 +307,19 @@ export default function Home() {
               </div>
             </div>
           )}
+
+          {/* Ad Banner Slot 2 - After Jobs */}
+          <div className="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl p-1">
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-cyan-700 font-medium">🎯 招聘置顶服务</p>
+                <p className="text-xs text-cyan-500 mt-1">让您的招聘信息获得更多曝光</p>
+              </div>
+              <Link to="/post-create" className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium">
+                立即发布
+              </Link>
+            </div>
+          </div>
 
           {/* Latest Posts */}
           <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
@@ -333,6 +395,17 @@ export default function Home() {
                   </div>
                 </Link>
               ))}
+            </div>
+          </div>
+
+          {/* Ad Banner Slot 3 - Sidebar Tools Below */}
+          <div className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-2xl overflow-hidden">
+            <div className="p-4">
+              <p className="text-sm font-bold text-white mb-1">🏪 商家入驻</p>
+              <p className="text-xs text-white/80 mb-3">免费入驻企业黄页，获取更多商机</p>
+              <Link to="/post-create" className="inline-block bg-white text-orange-500 px-4 py-1.5 rounded-lg text-xs font-medium">
+                立即入驻 →
+              </Link>
             </div>
           </div>
 

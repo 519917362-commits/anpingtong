@@ -306,4 +306,44 @@ router.delete('/static-pages/:id', adminAuth, (req, res) => {
   }
 })
 
+// Banner管理
+router.get('/banners', adminAuth, (req, res) => {
+  try {
+    const banners = db.prepare('SELECT * FROM banners ORDER BY sort_order DESC, id ASC').all()
+    res.json({ code: 200, data: banners })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+router.post('/banners', adminAuth, (req, res) => {
+  try {
+    const { title, image_url, link_url, link_type, sort_order, start_date, end_date } = req.body
+    if (!title || !image_url) return res.json({ code: 400, message: '标题和图片不能为空' })
+    const result = db.prepare('INSERT INTO banners (title, image_url, link_url, link_type, sort_order, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)').run(title, image_url, link_url || '', link_type || 'none', sort_order || 0, start_date || null, end_date || null)
+    res.json({ code: 200, data: { id: result.lastInsertRowid }, message: '添加成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+router.put('/banners/:id', adminAuth, (req, res) => {
+  try {
+    const { title, image_url, link_url, link_type, sort_order, start_date, end_date, status } = req.body
+    db.prepare('UPDATE banners SET title=COALESCE(?,title), image_url=COALESCE(?,image_url), link_url=COALESCE(?,link_url), link_type=COALESCE(?,link_type), sort_order=COALESCE(?,sort_order), start_date=COALESCE(?,start_date), end_date=COALESCE(?,end_date), status=COALESCE(?,status) WHERE id=?').run(title||null, image_url||null, link_url||null, link_type||null, sort_order||null, start_date||null, end_date||null, status||null, req.params.id)
+    res.json({ code: 200, message: '更新成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+router.delete('/banners/:id', adminAuth, (req, res) => {
+  try {
+    db.prepare('DELETE FROM banners WHERE id = ?').run(req.params.id)
+    res.json({ code: 200, message: '删除成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
 export default router

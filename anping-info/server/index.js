@@ -33,6 +33,24 @@ app.use('/api/static', staticRoutes)
 // 健康检查
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }))
 
+// 公开获取Banner列表
+app.get('/api/banners', (req, res) => {
+  try {
+    import('./db/schema.js').then(({ default: db }) => {
+      const banners = db.prepare(`
+        SELECT * FROM banners 
+        WHERE status = 'active' 
+          AND (start_date IS NULL OR start_date <= datetime('now'))
+          AND (end_date IS NULL OR end_date >= datetime('now'))
+        ORDER BY sort_order DESC, id ASC
+      `).all()
+      res.json({ code: 200, data: banners })
+    })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
 // 管理后台静态文件（必须在 "前端静态文件" 之前注册，否则 /admin/* 会被前台 catch-all 截掉）
 const adminDistPath = path.join(__dirname, '../admin/dist')
 app.use('/admin', express.static(adminDistPath))
