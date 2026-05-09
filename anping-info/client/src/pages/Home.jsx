@@ -97,22 +97,22 @@ export default function Home() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-primary to-blue-400 rounded-xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-1">🏠 安平同城网</h1>
-        <p className="opacity-90 text-sm">安平县本地便民分类信息平台 · 免费发布 · 快速传播</p>
-        <div className="flex gap-4 mt-4 text-xs">
-          <span className="bg-white/20 px-3 py-1 rounded-full">🏠 房屋租售</span>
-          <span className="bg-white/20 px-3 py-1 rounded-full">💼 招聘求职</span>
-          <span className="bg-white/20 px-3 py-1 rounded-full">🚗 二手车</span>
-          <span className="bg-white/20 px-3 py-1 rounded-full">🔄 二手物品</span>
+      <div className="bg-gradient-to-r from-primary to-blue-400 rounded-xl p-4 sm:p-6 text-white">
+        <h1 className="text-xl sm:text-2xl font-bold mb-1">🏠 安平同城网</h1>
+        <p className="opacity-90 text-xs sm:text-sm">安平县本地便民分类信息平台 · 免费发布 · 快速传播</p>
+        <div className="flex flex-wrap gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs">
+          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🏠 房屋租售</span>
+          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">💼 招聘求职</span>
+          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🚗 二手车</span>
+          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🔄 二手物品</span>
         </div>
       </div>
 
       {/* 热门公告 */}
       {notices.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-4">
+        <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-bold text-gray-800 text-sm">📢 最新公告</h2>
             <Link to="/notices" className="text-xs text-primary hover:underline">查看全部 →</Link>
@@ -130,24 +130,24 @@ export default function Home() {
       )}
 
       {/* 分类导航 - 10个重要分类 */}
-      <div className="bg-white rounded-xl p-4">
-        <div className="grid grid-cols-4 gap-3">
+      <div className="bg-white rounded-xl p-3 sm:p-4">
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
           {IMPORTANT_CATEGORIES.map(cat => (
             <Link
               key={cat.slug}
               to={`/category/${cat.slug}`}
-              className={`flex flex-col items-center gap-1 text-center py-2 rounded-lg hover:bg-gray-50 transition`}
+              className={`flex flex-col items-center gap-1 text-center py-2 sm:py-3 rounded-lg hover:bg-gray-50 transition`}
             >
-              <span className="text-2xl">{cat.icon}</span>
+              <span className="text-xl sm:text-2xl">{cat.icon}</span>
               <span className="text-xs font-medium text-gray-700">{cat.name}</span>
             </Link>
           ))}
           {/* 查看全部 */}
           <Link
             to="/all-categories"
-            className="flex flex-col items-center gap-1 text-center py-2 rounded-lg hover:bg-gray-50 transition text-gray-500"
+            className="flex flex-col items-center gap-1 text-center py-2 sm:py-3 rounded-lg hover:bg-gray-50 transition text-gray-500"
           >
-            <span className="text-2xl">📁</span>
+            <span className="text-xl sm:text-2xl">📁</span>
             <span className="text-xs font-medium">全部分类</span>
           </Link>
         </div>
@@ -155,23 +155,23 @@ export default function Home() {
 
       {/* 便民工具 */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-gray-800 text-lg">🛠️ 便民工具</h2>
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🛠️ 便民工具</h2>
           <Link to="/tools" className="text-xs text-primary hover:underline">查看全部 →</Link>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {tools.map(tool => (
             <Link
               key={tool.path}
               to={tool.path}
-              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-5 flex flex-col gap-2`}
+              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-4 sm:p-5 flex flex-col gap-2`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-3xl">{tool.icon}</span>
+                <span className="text-2xl sm:text-3xl">{tool.icon}</span>
                 <span className={`text-xs font-medium ${tool.accent} bg-white/70 px-2 py-0.5 rounded-full`}>{tool.tag}</span>
               </div>
               <div>
-                <h3 className="font-bold text-gray-800">{tool.title}</h3>
+                <h3 className="font-bold text-gray-800 text-sm sm:text-base">{tool.title}</h3>
                 <p className="text-xs text-gray-500 mt-0.5">{tool.desc}</p>
               </div>
             </Link>
@@ -181,20 +181,20 @@ export default function Home() {
 
       {/* 便民查询快捷入口 */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-gray-800 text-lg">🔎 便民查询</h2>
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🔎 便民查询</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {quickTools.map(tool => (
             <Link
               key={tool.path}
               to={tool.path}
-              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-4 flex items-center gap-3`}
+              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-2 sm:gap-3`}
             >
-              <span className="text-2xl">{tool.icon}</span>
+              <span className="text-xl sm:text-2xl">{tool.icon}</span>
               <div>
                 <h3 className="font-medium text-gray-800 text-sm">{tool.title}</h3>
-                <p className="text-xs text-gray-500">{tool.desc}</p>
+                <p className="text-xs text-gray-500 hidden sm:block">{tool.desc}</p>
               </div>
             </Link>
           ))}
@@ -204,21 +204,21 @@ export default function Home() {
       {/* 促销打折 */}
       {promotions.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-gray-800 text-lg">🏷️ 促销打折</h2>
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h2 className="font-bold text-gray-800 text-base sm:text-lg">🏷️ 促销打折</h2>
             <Link to="/category/promotions" className="text-xs text-primary hover:underline">查看全部 →</Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             {promotions.map(promo => (
               <Link
                 key={promo.id}
                 to={`/post/${promo.id}`}
                 className="card-hover bg-white rounded-xl border border-gray-100 overflow-hidden"
               >
-                <div className="h-28 bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 flex items-center justify-center text-4xl">🏷️</div>
-                <div className="p-3">
+                <div className="h-24 sm:h-28 bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 flex items-center justify-center text-3xl sm:text-4xl">🏷️</div>
+                <div className="p-2 sm:p-3">
                   <h3 className="text-sm font-medium text-gray-800 line-clamp-2">{promo.title}</h3>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-1 sm:mt-2">
                     {promo.original_price > 0 && promo.price < promo.original_price && (
                       <span className="text-xs text-gray-400 line-through">¥{promo.original_price}</span>
                     )}
@@ -237,18 +237,18 @@ export default function Home() {
       {/* 热门招聘 */}
       {jobs.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-gray-800 text-lg">💼 热门招聘</h2>
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h2 className="font-bold text-gray-800 text-base sm:text-lg">💼 热门招聘</h2>
             <Link to="/jobs" className="text-xs text-primary hover:underline">更多职位 →</Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
             {jobs.slice(0, 6).map(job => (
               <Link
                 key={job.id}
                 to={`/job/${job.id}`}
-                className="card-hover bg-white rounded-lg p-4 flex gap-3 border border-gray-100 hover:border-orange-200"
+                className="card-hover bg-white rounded-lg p-3 sm:p-4 flex gap-2 sm:gap-3 border border-gray-100 hover:border-orange-200"
               >
-                <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-xl shrink-0">💼</div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-orange-50 rounded-lg flex items-center justify-center text-lg sm:text-xl shrink-0">💼</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-medium text-gray-900 text-sm line-clamp-1">{job.title}</h3>
@@ -270,18 +270,18 @@ export default function Home() {
       {/* 知名企业 */}
       {companies.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-gray-800 text-lg">🏢 知名企业</h2>
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h2 className="font-bold text-gray-800 text-base sm:text-lg">🏢 知名企业</h2>
             <Link to="/companies" className="text-xs text-primary hover:underline">查看全部 →</Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
             {companies.slice(0, 6).map(c => (
               <Link
                 key={c.id}
                 to={`/company/${c.id}`}
-                className="card-hover bg-white rounded-xl p-4 border border-gray-100 hover:border-indigo-200 text-center"
+                className="card-hover bg-white rounded-xl p-3 sm:p-4 border border-gray-100 hover:border-indigo-200 text-center"
               >
-                <div className="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-3xl mx-auto mb-2">🏭</div>
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-2">🏭</div>
                 <div className="text-sm font-medium text-gray-800 truncate">{c.name}</div>
                 <div className="text-xs text-gray-400 mt-0.5">{c.industry || '综合企业'}</div>
               </Link>
@@ -292,31 +292,31 @@ export default function Home() {
 
       {/* 最新信息 */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-gray-800 text-lg">🆕 最新信息</h2>
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🆕 最新信息</h2>
           <span className="text-xs text-gray-400">实时更新 · 快速联系</span>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-4 h-24 animate-pulse" />
+              <div key={i} className="bg-white rounded-lg p-3 sm:p-4 h-20 sm:h-24 animate-pulse" />
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-white rounded-lg p-12 text-center text-gray-400">
-            <p className="text-4xl mb-2">📋</p>
+          <div className="bg-white rounded-lg p-8 sm:p-12 text-center text-gray-400">
+            <p className="text-3xl sm:text-4xl mb-2">📋</p>
             <p>暂无信息，<Link to="/post-create" className="text-primary">成为第一个发布者</Link></p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
             {posts.map(post => (
               <Link
                 key={post.id}
                 to={`/post/${post.id}`}
-                className="card-hover bg-white rounded-lg p-4 flex gap-4 border border-gray-100"
+                className="card-hover bg-white rounded-lg p-3 sm:p-4 flex gap-3 sm:gap-4 border border-gray-100"
               >
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg sm:text-xl shrink-0">
                   {CATEGORY_ICONS[post.category_slug] || CATEGORY_ICONS.other}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -324,7 +324,7 @@ export default function Home() {
                     <h3 className="font-medium text-gray-900 text-sm leading-snug line-clamp-1">{post.title}</h3>
                     <span className="text-accent font-bold text-sm shrink-0">{formatPrice(post.price)}</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                  <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-1.5 text-xs text-gray-400">
                     <span>{post.category_name}</span>
                     <span>📍 {post.location || '安平县'}</span>
                     <span>{timeAgo(post.created_at)}</span>
