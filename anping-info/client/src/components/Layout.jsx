@@ -34,11 +34,11 @@ export default function Layout() {
   const NAV_ITEMS = [
     { name: '首页', path: '/' },
     { name: '房屋租售', path: '/category/house' },
-    { name: '车辆服务', path: '/category/car' },
+    { name: '车辆服务', path: '/category/vehicle' },
     { name: '招聘求职', path: '/jobs' },
     { name: '企业黄页', path: '/companies' },
-    { name: '商务服务', path: '/category/business' },
-    { name: '二手物品', path: '/category/used' },
+    { name: '拼车出行', path: '/category/carpool' },
+    { name: '促销打折', path: '/category/promotions' },
     { name: '便民工具', path: '/tools' },
     { name: '公告', path: '/notices' },
   ]
@@ -159,10 +159,10 @@ export default function Layout() {
               <div className="space-y-1">
                 <Link to="/category/house" className="block hover:text-white">🏠 房屋租售</Link>
                 <Link to="/jobs" className="block hover:text-white">💼 招聘求职</Link>
-                <Link to="/category/car" className="block hover:text-white">🚗 车辆服务</Link>
-                <Link to="/category/used" className="block hover:text-white">🔄 二手物品</Link>
-                <Link to="/category/business" className="block hover:text-white">🛠️ 商务服务</Link>
-                <Link to="/category/life" className="block hover:text-white">☕ 生活服务</Link>
+                <Link to="/category/vehicle" className="block hover:text-white">🚗 车辆服务</Link>
+                <Link to="/category/secondhand" className="block hover:text-white">🔄 二手物品</Link>
+                <Link to="/category/carpool" className="block hover:text-white">🚙 拼车出行</Link>
+                <Link to="/category/promotions" className="block hover:text-white">🏷️ 促销打折</Link>
               </div>
             </div>
             <div>

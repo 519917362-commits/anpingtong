@@ -33,13 +33,13 @@ app.use('/api/static', staticRoutes)
 // 健康检查
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }))
 
+// 管理后台静态文件（必须在 "前端静态文件" 之前注册，否则 /admin/* 会被前台 catch-all 截掉）
+const adminDistPath = path.join(__dirname, '../admin/dist')
+app.use('/admin', express.static(adminDistPath))
+
 // 前端静态文件（生产环境）
 const distPath = path.join(__dirname, '../client/dist')
 app.use(express.static(distPath))
-
-// 管理后台静态文件
-const adminDistPath = path.join(__dirname, '../admin/dist')
-app.use('/admin', express.static(adminDistPath))
 
 // 所有未知路由 → 前端 SPA
 app.get('*', (req, res, next) => {

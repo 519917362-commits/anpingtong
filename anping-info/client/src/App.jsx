@@ -20,6 +20,7 @@ import CompanyDetail from './pages/CompanyDetail'
 import Notices from './pages/Notices'
 import NoticeDetail from './pages/NoticeDetail'
 import StaticPage from './pages/StaticPage'
+import AllCategories from './pages/AllCategories'
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="all-categories" element={<AllCategories />} />
             <Route path="category/:slug" element={<Category />} />
             <Route path="post/:id" element={<PostDetail />} />
             <Route path="post-create" element={<PostCreate />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 
 const API = '/api'
 
@@ -67,6 +67,9 @@ function Sidebar({ current }) {
   const navItems = [
     { path: '/', label: '📊 数据概览', key: 'dashboard' },
     { path: '/posts', label: '📋 信息管理', key: 'posts' },
+    { path: '/notices', label: '📢 公告管理', key: 'notices' },
+    { path: '/companies', label: '🏢 公司管理', key: 'companies' },
+    { path: '/static-pages', label: '📄 页面管理', key: 'static-pages' },
     { path: '/categories', label: '📂 分类管理', key: 'categories' },
     { path: '/users', label: '👥 用户管理', key: 'users' },
   ]
@@ -352,6 +355,322 @@ function CategoriesPage() {
   )
 }
 
+// ── 公告管理页 ──────────────────────────────────────────
+function NoticesPage() {
+  const [notices, setNotices] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [form, setForm] = useState({ title: '', content: '', type: 'notice', is_pinned: false })
+  const [editingId, setEditingId] = useState(null)
+  const [msg, setMsg] = useState('')
+
+  const load = () => {
+    setLoading(true)
+    api('/admin/notices').then(r => r.json()).then(d => {
+      if (d.code === 200) setNotices(d.data)
+    }).finally(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setMsg('')
+    const body = { ...form, is_pinned: form.is_pinned ? 1 : 0 }
+    let res, d
+    if (editingId) {
+      res = await api(`/admin/notices/${editingId}`, { method: 'PUT', body: JSON.stringify(body) })
+      d = await res.json()
+    } else {
+      res = await api('/admin/notices', { method: 'POST', body: JSON.stringify(body) })
+      d = await res.json()
+    }
+    if (d.code === 200) {
+      setMsg(editingId ? '更新成功' : '发布成功')
+      setForm({ title: '', content: '', type: 'notice', is_pinned: false })
+      setEditingId(null)
+      load()
+    } else {
+      setMsg(d.message || '操作失败')
+    }
+    setTimeout(() => setMsg(''), 3000)
+  }
+
+  const startEdit = (n) => {
+    setEditingId(n.id)
+    setForm({ title: n.title, content: n.content, type: n.type, is_pinned: !!n.is_pinned })
+  }
+
+  const togglePin = async (id) => {
+    const d = await api(`/admin/notices/toggle-pin/${id}`, { method: 'POST' }).then(r => r.json())
+    if (d.code === 200) {
+      load()
+    } else {
+      alert(d.message || '操作失败')
+    }
+  }
+
+  const del = async (id) => {
+    if (!confirm('确定删除该公告？')) return
+    const d = await api(`/admin/notices/${id}`, { method: 'DELETE' }).then(r => r.json())
+    if (d.code === 200) load()
+  }
+
+  const STATUS_MAP = { published: '已发布', draft: '草稿' }
+  const TYPE_MAP = { notice: '系统公告', activity: '活动通知', important: '重要提醒' }
+
+  return (
+    <div className="p-6">
+      <h2 className="text-lg font-bold mb-4">📢 公告管理</h2>
+
+      {/* 发布/编辑表单 */}
+      <form onSubmit={submit} className="bg-white rounded-xl border p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm font-medium">{editingId ? '✏️ 编辑公告' : '📝 发布公告'}</span>
+          {msg && <span className="text-sm text-green-600">{msg}</span>}
+        </div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
+            className="border rounded-lg px-3 py-1.5 text-sm flex-1 min-w-48" placeholder="公告标题" required />
+          <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
+            className="border rounded-lg px-3 py-1.5 text-sm">
+            <option value="notice">系统公告</option>
+            <option value="activity">活动通知</option>
+            <option value="important">重要提醒</option>
+          </select>
+          <label className="flex items-center gap-1.5 px-3 py-1.5 text-sm">
+            <input type="checkbox" checked={form.is_pinned} onChange={e => setForm({ ...form, is_pinned: e.target.checked })}
+              className="accent-primary" />
+            置顶
+          </label>
+          <button type="submit" className="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium">
+            {editingId ? '更新' : '发布'}
+          </button>
+          {editingId && (
+            <button type="button" onClick={() => { setEditingId(null); setForm({ title: '', content: '', type: 'notice', is_pinned: false }) }}
+              className="border px-4 py-1.5 rounded-lg text-sm">取消</button>
+          )}
+        </div>
+        <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}
+          className="w-full border rounded-lg px-3 py-2 text-sm" rows="4" placeholder="公告内容（支持富文本）" required />
+      </form>
+
+      {/* 公告列表 */}
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left">
+            <tr>
+              <th className="px-3 py-2 font-medium text-gray-500">置顶</th>
+              <th className="px-3 py-2 font-medium text-gray-500">标题</th>
+              <th className="px-3 py-2 font-medium text-gray-500">类型</th>
+              <th className="px-3 py-2 font-medium text-gray-500">状态</th>
+              <th className="px-3 py-2 font-medium text-gray-500">浏览</th>
+              <th className="px-3 py-2 font-medium text-gray-500">发布时间</th>
+              <th className="px-3 py-2 font-medium text-gray-500">操作</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              <tr><td colSpan="7" className="text-center py-8 text-gray-400">加载中...</td></tr>
+            ) : notices.length === 0 ? (
+              <tr><td colSpan="7" className="text-center py-8 text-gray-400">暂无公告</td></tr>
+            ) : notices.map(n => (
+              <tr key={n.id} className="hover:bg-gray-50">
+                <td className="px-3 py-2">
+                  {n.is_pinned ? (
+                    <button onClick={() => togglePin(n.id)} title="点击取消置顶"
+                      className="px-2 py-0.5 bg-orange-100 text-orange-600 rounded text-xs">置顶</button>
+                  ) : (
+                    <button onClick={() => togglePin(n.id)} title="点击置顶"
+                      className="px-2 py-0.5 bg-gray-100 text-gray-400 rounded text-xs">—</button>
+                  )}
+                </td>
+                <td className="px-3 py-2 font-medium max-w-xs truncate">{n.title}</td>
+                <td className="px-3 py-2 text-gray-500">{TYPE_MAP[n.type] || n.type}</td>
+                <td className="px-3 py-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${n.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    {STATUS_MAP[n.status] || n.status}
+                  </span>
+                </td>
+                <td className="px-3 py-2 text-gray-400">{n.views}</td>
+                <td className="px-3 py-2 text-gray-400">{n.created_at?.slice(0, 16)}</td>
+                <td className="px-3 py-2">
+                  <button onClick={() => startEdit(n)} className="text-primary text-xs mr-2 hover:underline">编辑</button>
+                  <button onClick={() => del(n.id)} className="text-red-500 text-xs hover:underline">删除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── 公司黄页管理页 ──────────────────────────────────────
+function CompaniesPage() {
+  const [companies, setCompanies] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [form, setForm] = useState({ name: '', logo: '', industry: '', scale: '', description: '', address: '', phone: '', website: '', status: 'active' })
+  const [editingId, setEditingId] = useState(null)
+  const [msg, setMsg] = useState('')
+
+  const load = () => { setLoading(true); api('/admin/companies').then(r => r.json()).then(d => { if (d.code === 200) setCompanies(d.data) }).finally(() => setLoading(false)) }
+  useEffect(() => { load() }, [])
+
+  const submit = async (e) => {
+    e.preventDefault(); setMsg('')
+    const method = editingId ? 'PUT' : 'POST'
+    const path = editingId ? `/admin/companies/${editingId}` : '/admin/companies'
+    const d = await api(path, { method, body: JSON.stringify(form) }).then(r => r.json())
+    if (d.code === 200) {
+      setMsg(editingId ? '更新成功' : '创建成功')
+      setForm({ name: '', logo: '', industry: '', scale: '', description: '', address: '', phone: '', website: '', status: 'active' })
+      setEditingId(null)
+      load()
+    } else { setMsg(d.message || '操作失败') }
+    setTimeout(() => setMsg(''), 3000)
+  }
+
+  const startEdit = (c) => { setEditingId(c.id); setForm({ name: c.name, logo: c.logo||'', industry: c.industry||'', scale: c.scale||'', description: c.description||'', address: c.address||'', phone: c.phone||'', website: c.website||'', status: c.status||'active' }) }
+  const del = async (id) => { if (!confirm('确定删除该公司？')) return; const d = await api(`/admin/companies/${id}`, { method: 'DELETE' }).then(r => r.json()); if (d.code === 200) load() }
+  const reset = () => { setEditingId(null); setForm({ name: '', logo: '', industry: '', scale: '', description: '', address: '', phone: '', website: '', status: 'active' }) }
+
+  const SCALE_OPTS = ['', '1-10人', '10-50人', '50-100人', '100-200人', '200-500人', '500人以上']
+  const STATUS_OPTS = [{ v: 'active', l: '正常' }, { v: 'inactive', l: '停用' }]
+
+  return (
+    <div className="p-6">
+      <h2 className="text-lg font-bold mb-4">🏢 公司黄页管理</h2>
+      <form onSubmit={submit} className="bg-white rounded-xl border p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3"><span className="text-sm font-medium">{editingId ? '✏️ 编辑公司' : '➕ 添加公司'}</span>{msg && <span className="text-sm text-green-600">{msg}</span>}</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm" placeholder="公司名称 *" required />
+          <input value={form.industry} onChange={e => setForm({...form, industry: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm" placeholder="所属行业" />
+          <select value={form.scale} onChange={e => setForm({...form, scale: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm"><option value="">选择规模</option>{SCALE_OPTS.filter(s=>s).map(s=><option key={s} value={s}>{s}</option>)}</select>
+          <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm">{STATUS_OPTS.map(s=><option key={s.v} value={s.v}>{s.l}</option>)}</select>
+          <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm" placeholder="联系电话" />
+          <input value={form.website} onChange={e => setForm({...form, website: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm" placeholder="网站地址" />
+          <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm col-span-2" placeholder="公司地址" />
+          <input value={form.logo} onChange={e => setForm({...form, logo: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm col-span-2" placeholder="Logo图片URL" />
+        </div>
+        <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm mb-3" rows="3" placeholder="公司简介" />
+        <div className="flex gap-2">
+          <button type="submit" className="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium">{editingId ? '更新' : '添加'}</button>
+          {editingId && <button type="button" onClick={reset} className="border px-4 py-1.5 rounded-lg text-sm">取消</button>}
+        </div>
+      </form>
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left"><tr><th className="px-3 py-2 font-medium text-gray-500">名称</th><th className="px-3 py-2 font-medium text-gray-500">行业</th><th className="px-3 py-2 font-medium text-gray-500">规模</th><th className="px-3 py-2 font-medium text-gray-500">状态</th><th className="px-3 py-2 font-medium text-gray-500">联系电话</th><th className="px-3 py-2 font-medium text-gray-500">操作</th></tr></thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? <tr><td colSpan="6" className="text-center py-8 text-gray-400">加载中...</td></tr> :
+             companies.length === 0 ? <tr><td colSpan="6" className="text-center py-8 text-gray-400">暂无公司</td></tr> :
+             companies.map(c => (
+              <tr key={c.id} className="hover:bg-gray-50">
+                <td className="px-3 py-2 font-medium">{c.name}</td>
+                <td className="px-3 py-2 text-gray-500">{c.industry||'-'}</td>
+                <td className="px-3 py-2 text-gray-500">{c.scale||'-'}</td>
+                <td className="px-3 py-2"><span className={`px-2 py-0.5 rounded-full text-xs ${c.status==='active'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-400'}`}>{c.status==='active'?'正常':'停用'}</span></td>
+                <td className="px-3 py-2 text-gray-500">{c.phone||'-'}</td>
+                <td className="px-3 py-2"><button onClick={() => startEdit(c)} className="text-primary text-xs mr-2 hover:underline">编辑</button><button onClick={() => del(c.id)} className="text-red-500 text-xs hover:underline">删除</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ── 静态页面管理页 ────────────────────────────────────────
+function StaticPagesPage() {
+  const [pages, setPages] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [form, setForm] = useState({ slug: '', title: '', content: '' })
+  const [editingId, setEditingId] = useState(null)
+  const [msg, setMsg] = useState('')
+
+  const load = () => { setLoading(true); api('/admin/static-pages').then(r => r.json()).then(d => { if (d.code === 200) setPages(d.data) }).finally(() => setLoading(false)) }
+  useEffect(() => { load() }, [])
+
+  const submit = async (e) => {
+    e.preventDefault(); setMsg('')
+    if (editingId) {
+      const d = await api(`/admin/static-pages/${editingId}`, { method: 'PUT', body: JSON.stringify(form) }).then(r => r.json())
+      if (d.code === 200) { setMsg('更新成功'); setForm({slug:'',title:'',content:''}); setEditingId(null); load() }
+      else setMsg(d.message||'更新失败')
+    } else {
+      const d = await api('/admin/static-pages', { method: 'POST', body: JSON.stringify(form) }).then(r => r.json())
+      if (d.code === 200) { setMsg('创建成功'); setForm({slug:'',title:'',content:''}); load() }
+      else setMsg(d.message||'创建失败')
+    }
+    setTimeout(() => setMsg(''), 3000)
+  }
+
+  const startEdit = (p) => { setEditingId(p.id); setForm({ slug: p.slug, title: p.title, content: p.content })}
+  const del = async (id) => { if (!confirm('确定删除该页面？')) return; const d = await api(`/admin/static-pages/${id}`, { method: 'DELETE' }).then(r => r.json()); if (d.code === 200) load() }
+  const reset = () => { setEditingId(null); setForm({slug:'',title:'',content:''}) }
+
+  const QUICK_TEMPLATES = [
+    { slug: 'about', title: '关于我们' },
+    { slug: 'agreement', title: '用户协议' },
+    { slug: 'privacy', title: '隐私政策' },
+    { slug: 'contact', title: '联系我们' },
+    { slug: 'disclaimer', title: '免责申明' },
+  ]
+
+  return (
+    <div className="p-6">
+      <h2 className="text-lg font-bold mb-4">📄 静态页面管理</h2>
+      <form onSubmit={submit} className="bg-white rounded-xl border p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm font-medium">{editingId ? '✏️ 编辑页面' : '➕ 创建页面'}</span>
+          {msg && <span className="text-sm text-green-600">{msg}</span>}
+        </div>
+        <div className="flex flex-wrap gap-3 mb-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">slug（路径）</label>
+            {editingId ? (
+              <input value={form.slug} readOnly className="border rounded-lg px-3 py-1.5 text-sm bg-gray-50 text-gray-400" />
+            ) : (
+              <select value={form.slug} onChange={e => setForm({...form, slug: e.target.value, title: QUICK_TEMPLATES.find(t=>t.slug===e.target.value)?.title||form.title})} className="border rounded-lg px-3 py-1.5 text-sm">
+                <option value="">选择页面</option>
+                {QUICK_TEMPLATES.map(t => <option key={t.slug} value={t.slug}>{t.slug} - {t.title}</option>)}
+              </select>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">页面标题</label>
+            <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="border rounded-lg px-3 py-1.5 text-sm" placeholder="页面标题" required />
+          </div>
+          <div className="flex items-end gap-2">
+            <button type="submit" className="bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium">{editingId ? '更新' : '创建'}</button>
+            {editingId && <button type="button" onClick={reset} className="border px-4 py-1.5 rounded-lg text-sm">取消</button>}
+          </div>
+        </div>
+        <textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm" rows="8" placeholder="页面内容（支持Markdown格式）" required />
+      </form>
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-left"><tr><th className="px-3 py-2 font-medium text-gray-500">slug</th><th className="px-3 py-2 font-medium text-gray-500">标题</th><th className="px-3 py-2 font-medium text-gray-500">内容预览</th><th className="px-3 py-2 font-medium text-gray-500">操作</th></tr></thead>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? <tr><td colSpan="4" className="text-center py-8 text-gray-400">加载中...</td></tr> :
+             pages.length === 0 ? <tr><td colSpan="4" className="text-center py-8 text-gray-400">暂无页面</td></tr> :
+             pages.map(p => (
+              <tr key={p.id} className="hover:bg-gray-50">
+                <td className="px-3 py-2 font-mono text-xs text-primary">{p.slug}</td>
+                <td className="px-3 py-2 font-medium">{p.title}</td>
+                <td className="px-3 py-2 text-gray-400 max-w-xs truncate">{p.content?.slice(0, 60)}</td>
+                <td className="px-3 py-2"><button onClick={() => startEdit(p)} className="text-primary text-xs mr-2 hover:underline">编辑</button><button onClick={() => del(p.id)} className="text-red-500 text-xs hover:underline">删除</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 // ── 用户管理页 ───────────────────────────────────────────
 function UsersPage() {
   const [users, setUsers] = useState([])
@@ -410,6 +729,9 @@ function AdminApp() {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/posts" element={<PostsPage />} />
+                  <Route path="/notices" element={<NoticesPage />} />
+                  <Route path="/companies" element={<CompaniesPage />} />
+                  <Route path="/static-pages" element={<StaticPagesPage />} />
                   <Route path="/categories" element={<CategoriesPage />} />
                   <Route path="/users" element={<UsersPage />} />
                 </Routes>

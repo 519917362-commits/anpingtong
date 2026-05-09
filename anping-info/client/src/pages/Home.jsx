@@ -1,20 +1,45 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
+// 首页展示的10个重要分类（按截图顺序）
+const IMPORTANT_CATEGORIES = [
+  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'from-orange-50 to-orange-100 border-orange-200' },
+  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'from-blue-50 to-blue-100 border-blue-200' },
+  { slug: 'secondhand', name: '二手买卖', icon: '🔄', color: 'from-yellow-50 to-yellow-100 border-yellow-200' },
+  { slug: 'shop-transfer', name: '旺铺转让', icon: '🏪', color: 'from-pink-50 to-pink-100 border-pink-200' },
+  { slug: 'vehicle', name: '车辆交易', icon: '🚗', color: 'from-green-50 to-green-100 border-green-200' },
+  { slug: 'discounts', name: '优惠信息', icon: '🎁', color: 'from-rose-50 to-rose-100 border-rose-200' },
+  { slug: 'education', name: '教育培训', icon: '📚', color: 'from-indigo-50 to-indigo-100 border-indigo-200' },
+  { slug: 'electronics', name: '家电数码', icon: '📱', color: 'from-cyan-50 to-cyan-100 border-cyan-200' },
+  { slug: 'qa', name: '全城知道', icon: '🔮', color: 'from-violet-50 to-violet-100 border-violet-200' },
+  { slug: 'tools', name: '便民查询', icon: '🔎', color: 'from-sky-50 to-sky-100 border-sky-200' },
+]
+
 const CATEGORY_ICONS = {
-  house: '🏠', car: '🚗', job: '💼', business: '🛠️',
-  used: '🔄', life: '☕', edu: '📚', other: '📌'
+  'jobs-recruit': '💼', house: '🏠', vehicle: '🚗', secondhand: '🔄',
+  business: '🛠️', shop: '🏪', life: '☕', edu: '📚',
+  missing: '🔍', electronics: '📱', 'home-materials': '🏗️',
+  discounts: '🎁', carpool: '🚙', promotions: '🏷️',
+  tools: '🔎', qa: '🔮', other: '📌'
 }
 
 const CATEGORY_COLORS = {
-  house: 'from-blue-50 to-blue-100 border-blue-200',
-  car:   'from-green-50 to-green-100 border-green-200',
-  job:   'from-orange-50 to-orange-100 border-orange-200',
-  business: 'from-purple-50 to-purple-100 border-purple-200',
-  used:  'from-yellow-50 to-yellow-100 border-yellow-200',
-  life:  'from-pink-50 to-pink-100 border-pink-200',
-  edu:   'from-indigo-50 to-indigo-100 border-indigo-200',
-  other: 'from-gray-50 to-gray-100 border-gray-200',
+  'jobs-recruit': 'from-orange-50 to-orange-100 border-orange-200',
+  house:          'from-blue-50 to-blue-100 border-blue-200',
+  vehicle:        'from-green-50 to-green-100 border-green-200',
+  secondhand:     'from-yellow-50 to-yellow-100 border-yellow-200',
+  business:       'from-purple-50 to-purple-100 border-purple-200',
+  shop:           'from-pink-50 to-pink-100 border-pink-200',
+  life:           'from-red-50 to-red-100 border-red-200',
+  edu:            'from-indigo-50 to-indigo-100 border-indigo-200',
+  missing:        'from-gray-50 to-gray-100 border-gray-200',
+  electronics:    'from-cyan-50 to-cyan-100 border-cyan-200',
+  'home-materials':'from-amber-50 to-amber-100 border-amber-200',
+  discounts:      'from-rose-50 to-rose-100 border-rose-200',
+  carpool:        'from-teal-50 to-teal-100 border-teal-200',
+  promotions:     'from-fuchsia-50 to-fuchsia-100 border-fuchsia-200',
+  tools:          'from-sky-50 to-sky-100 border-sky-200',
+  qa:             'from-violet-50 to-violet-100 border-violet-200',
 }
 
 function timeAgo(dateStr) {
@@ -35,26 +60,26 @@ function formatPrice(price) {
 }
 
 export default function Home() {
-  const [categories, setCategories] = useState([])
   const [posts, setPosts] = useState([])
   const [jobs, setJobs] = useState([])
   const [companies, setCompanies] = useState([])
   const [notices, setNotices] = useState([])
+  const [promotions, setPromotions] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/posts/categories').then(r => r.json()),
       fetch('/api/posts?pageSize=20').then(r => r.json()),
-      fetch('/api/posts?category=job&status=approved&pageSize=6').then(r => r.json()),
+      fetch('/api/posts?category=jobs-recruit&status=approved&pageSize=6').then(r => r.json()),
       fetch('/api/companies?pageSize=6').then(r => r.json()),
       fetch('/api/notices?pageSize=3').then(r => r.json()),
-    ]).then(([catData, postData, jobData, companyData, noticeData]) => {
-      if (catData.code === 200) setCategories(catData.data)
+      fetch('/api/posts?category=promotions&status=approved&pageSize=4').then(r => r.json()),
+    ]).then(([postData, jobData, companyData, noticeData, promoData]) => {
       if (postData.code === 200) setPosts(postData.data.list)
       if (jobData.code === 200) setJobs(jobData.data.list)
       if (companyData.code === 200) setCompanies(companyData.data.list)
       if (noticeData.code === 200) setNotices(noticeData.data.list)
+      if (promoData.code === 200) setPromotions(promoData.data.list)
     }).finally(() => setLoading(false))
   }, [])
 
@@ -62,6 +87,13 @@ export default function Home() {
     { icon: '🚚', title: '物流查询', desc: '快递/物流实时追踪', path: '/tools/logistics', color: 'from-blue-50 to-blue-100', accent: 'text-blue-600', tag: '实用工具' },
     { icon: '🛠️', title: '丝网报价', desc: '根据规格快速计算价格', path: '/tools/wiremesh', color: 'from-purple-50 to-purple-100', accent: 'text-purple-600', tag: '行业工具' },
     { icon: '📊', title: '原材料行情', desc: '钢丝/盘条实时价格', path: '/tools/materials', color: 'from-green-50 to-green-100', accent: 'text-green-600', tag: '市场行情' },
+  ]
+
+  const quickTools = [
+    { icon: '📍', title: '电话查询', desc: '安平本地电话黄页', path: '/tools/phone', color: 'from-blue-50 to-blue-100', accent: 'text-blue-600' },
+    { icon: '🧾', title: '快递追踪', desc: '主流快递实时查询', path: '/tools/express', color: 'from-orange-50 to-orange-100', accent: 'text-orange-600' },
+    { icon: '🔢', title: '区号邮编', desc: '安平区号/邮政编码', path: '/tools/postcode', color: 'from-teal-50 to-teal-100', accent: 'text-teal-600' },
+    { icon: '🏥', title: '医院挂号', desc: '安平各大医院预约', path: '/tools/hospital', color: 'from-red-50 to-red-100', accent: 'text-red-600' },
   ]
 
   return (
@@ -97,29 +129,28 @@ export default function Home() {
         </div>
       )}
 
-      {/* 分类导航 */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-gray-800 text-lg">📂 信息分类</h2>
+      {/* 分类导航 - 10个重要分类 */}
+      <div className="bg-white rounded-xl p-4">
+        <div className="grid grid-cols-4 gap-3">
+          {IMPORTANT_CATEGORIES.map(cat => (
+            <Link
+              key={cat.slug}
+              to={`/category/${cat.slug}`}
+              className={`flex flex-col items-center gap-1 text-center py-2 rounded-lg hover:bg-gray-50 transition`}
+            >
+              <span className="text-2xl">{cat.icon}</span>
+              <span className="text-xs font-medium text-gray-700">{cat.name}</span>
+            </Link>
+          ))}
+          {/* 查看全部 */}
+          <Link
+            to="/all-categories"
+            className="flex flex-col items-center gap-1 text-center py-2 rounded-lg hover:bg-gray-50 transition text-gray-500"
+          >
+            <span className="text-2xl">📁</span>
+            <span className="text-xs font-medium">全部分类</span>
+          </Link>
         </div>
-        {loading ? (
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-            {[...Array(8)].map((_, i) => <div key={i} className="h-20 bg-gray-200 rounded-lg animate-pulse" />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-            {categories.map(cat => (
-              <Link
-                key={cat.id}
-                to={`/category/${cat.slug}`}
-                className={`card-hover bg-gradient-to-br ${CATEGORY_COLORS[cat.slug] || 'from-gray-50 to-gray-100 border-gray-200'} border rounded-xl p-3 flex flex-col items-center gap-1 text-center`}
-              >
-                <span className="text-2xl">{CATEGORY_ICONS[cat.slug] || '📌'}</span>
-                <span className="text-xs font-medium text-gray-700">{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* 便民工具 */}
@@ -147,6 +178,61 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* 便民查询快捷入口 */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-bold text-gray-800 text-lg">🔎 便民查询</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {quickTools.map(tool => (
+            <Link
+              key={tool.path}
+              to={tool.path}
+              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-4 flex items-center gap-3`}
+            >
+              <span className="text-2xl">{tool.icon}</span>
+              <div>
+                <h3 className="font-medium text-gray-800 text-sm">{tool.title}</h3>
+                <p className="text-xs text-gray-500">{tool.desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* 促销打折 */}
+      {promotions.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-gray-800 text-lg">🏷️ 促销打折</h2>
+            <Link to="/category/promotions" className="text-xs text-primary hover:underline">查看全部 →</Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {promotions.map(promo => (
+              <Link
+                key={promo.id}
+                to={`/post/${promo.id}`}
+                className="card-hover bg-white rounded-xl border border-gray-100 overflow-hidden"
+              >
+                <div className="h-28 bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 flex items-center justify-center text-4xl">🏷️</div>
+                <div className="p-3">
+                  <h3 className="text-sm font-medium text-gray-800 line-clamp-2">{promo.title}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    {promo.original_price > 0 && promo.price < promo.original_price && (
+                      <span className="text-xs text-gray-400 line-through">¥{promo.original_price}</span>
+                    )}
+                    <span className="text-accent font-bold text-sm">{promo.price > 0 ? `¥${promo.price}` : '免费'}</span>
+                  </div>
+                  {promo.valid_until && (
+                    <p className="text-xs text-gray-400 mt-1">有效期：{promo.valid_until}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 热门招聘 */}
       {jobs.length > 0 && (

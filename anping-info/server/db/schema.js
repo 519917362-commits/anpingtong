@@ -82,6 +82,7 @@ db.exec(`
     type       TEXT    DEFAULT 'notice',
     views      INTEGER DEFAULT 0,
     status     TEXT    DEFAULT 'published',
+    is_pinned  INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -96,12 +97,85 @@ db.exec(`
 
 // 迁移：posts 表添加新列（处理 CREATE TABLE IF NOT EXISTS 不更新现有表的情况）
 const cols = db.prepare('PRAGMA table_info(posts)').all().map(c => c.name)
-const newCols = [['company_id', 'INTEGER DEFAULT NULL'], ['salary_min', 'REAL DEFAULT 0'], ['salary_max', 'REAL DEFAULT 0'], ['salary_type', "TEXT DEFAULT 'month'"]]
+const newCols = [
+  ['company_id', 'INTEGER DEFAULT NULL'],
+  ['salary_min', 'REAL DEFAULT 0'],
+  ['salary_max', 'REAL DEFAULT 0'],
+  ['salary_type', "TEXT DEFAULT 'month'"],
+  ['type', "TEXT DEFAULT 'normal'"],        // normal | article | carpool | deal | qa
+  ['departure_location', 'TEXT DEFAULT ""'],  // 拼车出发地
+  ['destination', 'TEXT DEFAULT ""'],         // 拼车目的地
+  ['departure_time', 'TEXT DEFAULT ""'],      // 拼车出发时间
+  ['seats_total', 'INTEGER DEFAULT 0'],        // 拼车总座位
+  ['seats_available', 'INTEGER DEFAULT 0'],   // 拼车剩余座位
+  ['original_price', 'REAL DEFAULT 0'],        // 促销原价
+  ['valid_until', 'TEXT DEFAULT ""'],          // 促销有效期
+]
 for (const [name, def] of newCols) {
   if (!cols.includes(name)) {
     try { db.exec(`ALTER TABLE posts ADD COLUMN ${name} ${def}`) } catch {}
   }
 }
+
+// 创建同城资讯表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS news (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      TEXT    NOT NULL,
+    summary    TEXT    DEFAULT '',
+    content    TEXT    NOT NULL,
+    author     TEXT    DEFAULT '同城编辑',
+    source     TEXT    DEFAULT '',
+    cover_img  TEXT    DEFAULT '',
+    views      INTEGER DEFAULT 0,
+    is_featured INTEGER DEFAULT 0,
+    status     TEXT    DEFAULT 'published',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`)
+
+// 创建品牌商家表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS merchants (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id      INTEGER,
+    name         TEXT    NOT NULL,
+    logo         TEXT    DEFAULT '',
+    banner       TEXT    DEFAULT '',
+    industry     TEXT    DEFAULT '',
+    scale        TEXT    DEFAULT '',
+    description  TEXT    DEFAULT '',
+    address      TEXT    DEFAULT '',
+    phone        TEXT    DEFAULT '',
+    wechat       TEXT    DEFAULT '',
+    website      TEXT    DEFAULT '',
+    brand_story  TEXT    DEFAULT '',
+    tags         TEXT    DEFAULT '',
+    is_featured  INTEGER DEFAULT 0,
+    is_verified  INTEGER DEFAULT 0,
+    status       TEXT    DEFAULT 'pending',
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+`)
+
+// 创建首页Banner表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS banners (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    title      TEXT    NOT NULL,
+    image_url  TEXT    NOT NULL,
+    link_url   TEXT    DEFAULT '',
+    link_type  TEXT    DEFAULT 'none',
+    sort_order INTEGER DEFAULT 0,
+    start_date DATETIME DEFAULT NULL,
+    end_date   DATETIME DEFAULT NULL,
+    status     TEXT    DEFAULT 'active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`)
 
 // 创建默认管理员（密码: admin123）
 const existingAdmin = db.prepare('SELECT id FROM admins WHERE username = ?').get('admin')
@@ -112,24 +186,38 @@ if (!existingAdmin) {
 }
 
 // 种子分类数据
+// 14个板块分类（10个分类信息 + 4个专项板块）
 const categories = [
-  { name: '房屋租售', slug: 'house',     icon: '🏠', sort: 1 },
-  { name: '车辆服务', slug: 'car',       icon: '🚗', sort: 2 },
-  { name: '招聘求职', slug: 'job',       icon: '💼', sort: 3 },
-  { name: '商务服务', slug: 'business',  icon: '🛠️', sort: 4 },
-  { name: '二手物品', slug: 'used',      icon: '🔄', sort: 5 },
-  { name: '生活服务', slug: 'life',      icon: '☕', sort: 6 },
-  { name: '教育培训', slug: 'edu',       icon: '📚', sort: 7 },
-  { name: '其他信息', slug: 'other',     icon: '📌', sort: 8 },
+  // === 分类信息（10个）===
+  { name: '招聘求职',   slug: 'jobs-recruit',    icon: '💼', sort: 1  },
+  { name: '二手买卖',   slug: 'secondhand',       icon: '🔄', sort: 2  },
+  { name: '房屋租售',   slug: 'house',           icon: '🏠', sort: 3  },
+  { name: '旺铺转让',   slug: 'shop-transfer',   icon: '🏪', sort: 4  },
+  { name: '车辆交易',   slug: 'vehicle',         icon: '🚗', sort: 5  },
+  { name: '寻人寻物',   slug: 'missing',         icon: '🔍', sort: 6  },
+  { name: '家电数码',   slug: 'electronics',     icon: '📱', sort: 7  },
+  { name: '教育培训',   slug: 'education',       icon: '📚', sort: 8  },
+  { name: '家居建材',   slug: 'home-materials',  icon: '🏗️', sort: 9  },
+  { name: '优惠信息',   slug: 'discounts',       icon: '🎁', sort: 10 },
+  // === 专项板块（4个）===
+  { name: '拼车出行',   slug: 'carpool',          icon: '🚙', sort: 11 },
+  { name: '促销打折',   slug: 'promotions',      icon: '🏷️', sort: 12 },
+  { name: '便民查询',   slug: 'tools',           icon: '🔎', sort: 13 },
+  { name: '全城知道',   slug: 'qa',              icon: '🔮', sort: 14 },
 ]
 
+// 安全地更新分类数据：先将posts的category_id设为NULL（避免外键约束），再替换分类
+db.pragma('foreign_keys = OFF')
+db.exec('DELETE FROM categories')
+db.exec('DELETE FROM posts')  // 清空posts避免孤儿外键
 const insertCat = db.prepare(`
-  INSERT OR IGNORE INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)
+  INSERT INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)
 `)
 for (const c of categories) {
   insertCat.run(c.name, c.slug, c.icon, c.sort)
 }
-console.log('分类数据已创建')
+db.pragma('foreign_keys = ON')
+console.log('分类数据已更新')
 
 // 创建种子用户
 const insertUser = db.prepare(`

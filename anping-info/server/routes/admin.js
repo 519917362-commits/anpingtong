@@ -142,4 +142,168 @@ router.get('/users', adminAuth, (req, res) => {
   }
 })
 
+// 公告列表（管理员用）
+router.get('/notices', adminAuth, (req, res) => {
+  try {
+    const notices = db.prepare('SELECT * FROM notices ORDER BY is_pinned DESC, created_at DESC').all()
+    res.json({ code: 200, data: notices })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 创建公告
+router.post('/notices', adminAuth, (req, res) => {
+  try {
+    const { title, content, type = 'notice', is_pinned = 0 } = req.body
+    if (!title || !content) return res.json({ code: 400, message: '标题和内容不能为空' })
+    if (is_pinned) {
+      const cnt = db.prepare('SELECT COUNT(*) as cnt FROM notices WHERE is_pinned = 1').get()
+      if (cnt.cnt >= 3) return res.json({ code: 400, message: '置顶最多3条' })
+    }
+    const result = db.prepare('INSERT INTO notices (title, content, type, is_pinned) VALUES (?, ?, ?, ?)').run(title, content, type, is_pinned ? 1 : 0)
+    res.json({ code: 200, data: { id: result.lastInsertRowid }, message: '发布成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 更新公告
+router.put('/notices/:id', adminAuth, (req, res) => {
+  try {
+    const { title, content, type, is_pinned, status } = req.body
+    const existing = db.prepare('SELECT is_pinned FROM notices WHERE id = ?').get(req.params.id)
+    if (!existing) return res.json({ code: 404, message: '公告不存在' })
+    if (is_pinned === 1 && !existing.is_pinned) {
+      const cnt = db.prepare('SELECT COUNT(*) as cnt FROM notices WHERE is_pinned = 1').get()
+      if (cnt.cnt >= 3) return res.json({ code: 400, message: '置顶最多3条' })
+    }
+    db.prepare('UPDATE notices SET title=COALESCE(?,title), content=COALESCE(?,content), type=COALESCE(?,type), is_pinned=COALESCE(?,is_pinned), status=COALESCE(?,status) WHERE id=?').run(
+      title||null, content||null, type||null,
+      is_pinned !== undefined ? (is_pinned ? 1 : 0) : null,
+      status||null, req.params.id
+    )
+    res.json({ code: 200, message: '更新成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 删除公告
+router.delete('/notices/:id', adminAuth, (req, res) => {
+  try {
+    db.prepare('DELETE FROM notices WHERE id = ?').run(req.params.id)
+    res.json({ code: 200, message: '删除成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 切换置顶
+router.post('/notices/toggle-pin/:id', adminAuth, (req, res) => {
+  try {
+    const existing = db.prepare('SELECT is_pinned FROM notices WHERE id = ?').get(req.params.id)
+    if (!existing) return res.json({ code: 404, message: '公告不存在' })
+    if (!existing.is_pinned) {
+      const cnt = db.prepare('SELECT COUNT(*) as cnt FROM notices WHERE is_pinned = 1').get()
+      if (cnt.cnt >= 3) return res.json({ code: 400, message: '置顶最多3条' })
+    }
+    db.prepare('UPDATE notices SET is_pinned = NOT is_pinned WHERE id = ?').run(req.params.id)
+    res.json({ code: 200, message: existing.is_pinned ? '已取消置顶' : '已设为置顶' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 公司黄页列表（管理员用，显示所有状态）
+router.get('/companies', adminAuth, (req, res) => {
+  try {
+    const { keyword } = req.query
+    let sql = 'SELECT * FROM companies WHERE 1=1'
+    const params = []
+    if (keyword) { sql += ' AND (name LIKE ? OR industry LIKE ?)'; params.push(`%${keyword}%`, `%${keyword}%`) }
+    sql += ' ORDER BY created_at DESC'
+    const companies = db.prepare(sql).all(...params)
+    res.json({ code: 200, data: companies })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 创建公司
+router.post('/companies', adminAuth, (req, res) => {
+  try {
+    const { name, logo, industry, scale, description, address, phone, website, status } = req.body
+    if (!name) return res.json({ code: 400, message: '公司名称不能为空' })
+    const result = db.prepare('INSERT INTO companies (name, logo, industry, scale, description, address, phone, website, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(name, logo||'', industry||'', scale||'', description||'', address||'', phone||'', website||'', status||'active')
+    res.json({ code: 200, data: { id: result.lastInsertRowid }, message: '创建成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 更新公司
+router.put('/companies/:id', adminAuth, (req, res) => {
+  try {
+    const { name, logo, industry, scale, description, address, phone, website, status } = req.body
+    db.prepare('UPDATE companies SET name=COALESCE(?,name), logo=COALESCE(?,logo), industry=COALESCE(?,industry), scale=COALESCE(?,scale), description=COALESCE(?,description), address=COALESCE(?,address), phone=COALESCE(?,phone), website=COALESCE(?,website), status=COALESCE(?,status) WHERE id=?').run(name||null, logo||null, industry||null, scale||null, description||null, address||null, phone||null, website||null, status||null, req.params.id)
+    res.json({ code: 200, message: '更新成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 删除公司
+router.delete('/companies/:id', adminAuth, (req, res) => {
+  try {
+    db.prepare('DELETE FROM companies WHERE id = ?').run(req.params.id)
+    res.json({ code: 200, message: '删除成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 静态页面列表（管理员用）
+router.get('/static-pages', adminAuth, (req, res) => {
+  try {
+    const pages = db.prepare('SELECT * FROM static_pages ORDER BY id ASC').all()
+    res.json({ code: 200, data: pages })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 创建静态页面
+router.post('/static-pages', adminAuth, (req, res) => {
+  try {
+    const { slug, title, content } = req.body
+    if (!slug || !title || !content) return res.json({ code: 400, message: 'slug、标题、内容不能为空' })
+    const result = db.prepare('INSERT INTO static_pages (slug, title, content) VALUES (?, ?, ?)').run(slug, title, content)
+    res.json({ code: 200, data: { id: result.lastInsertRowid }, message: '创建成功' })
+  } catch {
+    res.json({ code: 500, message: 'slug可能已存在' })
+  }
+})
+
+// 更新静态页面
+router.put('/static-pages/:id', adminAuth, (req, res) => {
+  try {
+    const { title, content } = req.body
+    db.prepare('UPDATE static_pages SET title=COALESCE(?,title), content=COALESCE(?,content) WHERE id=?').run(title||null, content||null, req.params.id)
+    res.json({ code: 200, message: '更新成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
+// 删除静态页面
+router.delete('/static-pages/:id', adminAuth, (req, res) => {
+  try {
+    db.prepare('DELETE FROM static_pages WHERE id = ?').run(req.params.id)
+    res.json({ code: 200, message: '删除成功' })
+  } catch {
+    res.json({ code: 500 })
+  }
+})
+
 export default router
