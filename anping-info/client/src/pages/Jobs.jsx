@@ -42,7 +42,7 @@ export default function Jobs() {
 
   const fetchJobs = () => {
     setLoading(true)
-    const params = new URLSearchParams({ category: 'job', pageSize: 50, status: 'approved' })
+    const params = new URLSearchParams({ category: 'jobs-recruit', pageSize: 50, status: 'approved' })
     if (keyword) params.set('keyword', keyword)
 
     Promise.all([

@@ -32,7 +32,7 @@ export default function JobDetail() {
         }
         // 获取同公司其他职位
         if (postData.data.company_id) {
-          fetch(`/api/posts?category=job&status=approved&pageSize=5`).then(r => r.json()).then(j => {
+          fetch(`/api/posts?category=jobs-recruit&status=approved&pageSize=5`).then(r => r.json()).then(j => {
             if (j.code === 200) {
               setRelatedJobs(j.data.list.filter(p => p.id !== Number(id) && p.company_id === postData.data.company_id).slice(0, 3))
             }
