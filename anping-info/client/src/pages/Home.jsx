@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
-// 首页展示的10个重要分类（按截图顺序）
 const IMPORTANT_CATEGORIES = [
-  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'from-orange-50 to-orange-100 border-orange-200' },
-  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'from-blue-50 to-blue-100 border-blue-200' },
-  { slug: 'secondhand', name: '二手买卖', icon: '🔄', color: 'from-yellow-50 to-yellow-100 border-yellow-200' },
-  { slug: 'shop-transfer', name: '旺铺转让', icon: '🏪', color: 'from-pink-50 to-pink-100 border-pink-200' },
-  { slug: 'vehicle', name: '车辆交易', icon: '🚗', color: 'from-green-50 to-green-100 border-green-200' },
-  { slug: 'discounts', name: '优惠信息', icon: '🎁', color: 'from-rose-50 to-rose-100 border-rose-200' },
-  { slug: 'education', name: '教育培训', icon: '📚', color: 'from-indigo-50 to-indigo-100 border-indigo-200' },
-  { slug: 'electronics', name: '家电数码', icon: '📱', color: 'from-cyan-50 to-cyan-100 border-cyan-200' },
-  { slug: 'qa', name: '全城知道', icon: '🔮', color: 'from-violet-50 to-violet-100 border-violet-200' },
-  { slug: 'tools', name: '便民查询', icon: '🔎', color: 'from-sky-50 to-sky-100 border-sky-200' },
+  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', gradient: 'from-orange-500 to-orange-600' },
+  { slug: 'house', name: '房屋租售', icon: '🏠', gradient: 'from-blue-500 to-blue-600' },
+  { slug: 'secondhand', name: '二手买卖', icon: '🔄', gradient: 'from-amber-500 to-amber-600' },
+  { slug: 'shop-transfer', name: '旺铺转让', icon: '🏪', gradient: 'from-pink-500 to-pink-600' },
+  { slug: 'vehicle', name: '车辆服务', icon: '🚗', gradient: 'from-emerald-500 to-emerald-600' },
+  { slug: 'education', name: '教育培训', icon: '📚', gradient: 'from-indigo-500 to-indigo-600' },
+  { slug: 'electronics', name: '家电数码', icon: '📱', gradient: 'from-cyan-500 to-cyan-600' },
+  { slug: 'discounts', name: '优惠促销', icon: '🎁', gradient: 'from-rose-500 to-rose-600' },
+  { slug: 'carpool', name: '拼车出行', icon: '🚙', gradient: 'from-teal-500 to-teal-600' },
+  { slug: 'qa', name: '全城知道', icon: '🔮', gradient: 'from-violet-500 to-violet-600' },
+  { slug: 'tools', name: '便民查询', icon: '🔎', gradient: 'from-sky-500 to-sky-600' },
+  { slug: 'home-materials', name: '家居建材', icon: '🏗️', gradient: 'from-stone-500 to-stone-600' },
 ]
 
 const CATEGORY_ICONS = {
@@ -23,24 +24,7 @@ const CATEGORY_ICONS = {
   tools: '🔎', qa: '🔮', other: '📌'
 }
 
-const CATEGORY_COLORS = {
-  'jobs-recruit': 'from-orange-50 to-orange-100 border-orange-200',
-  house:          'from-blue-50 to-blue-100 border-blue-200',
-  vehicle:        'from-green-50 to-green-100 border-green-200',
-  secondhand:     'from-yellow-50 to-yellow-100 border-yellow-200',
-  business:       'from-purple-50 to-purple-100 border-purple-200',
-  shop:           'from-pink-50 to-pink-100 border-pink-200',
-  life:           'from-red-50 to-red-100 border-red-200',
-  edu:            'from-indigo-50 to-indigo-100 border-indigo-200',
-  missing:        'from-gray-50 to-gray-100 border-gray-200',
-  electronics:    'from-cyan-50 to-cyan-100 border-cyan-200',
-  'home-materials':'from-amber-50 to-amber-100 border-amber-200',
-  discounts:      'from-rose-50 to-rose-100 border-rose-200',
-  carpool:        'from-teal-50 to-teal-100 border-teal-200',
-  promotions:     'from-fuchsia-50 to-fuchsia-100 border-fuchsia-200',
-  tools:          'from-sky-50 to-sky-100 border-sky-200',
-  qa:             'from-violet-50 to-violet-100 border-violet-200',
-}
+const HOT_KEYWORDS = ['丝网厂招聘', '安平租房', '二手电动车', '拼车北京', '旺铺转让']
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -66,6 +50,10 @@ export default function Home() {
   const [notices, setNotices] = useState([])
   const [promotions, setPromotions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [keyword, setKeyword] = useState('')
+  const navigate = useNavigate()
+  const [currentBanner, setCurrentBanner] = useState(0)
+  const bannerRef = useRef(null)
 
   useEffect(() => {
     Promise.all([
@@ -83,259 +71,398 @@ export default function Home() {
     }).finally(() => setLoading(false))
   }, [])
 
-  const tools = [
-    { icon: '🚚', title: '物流查询', desc: '快递/物流实时追踪', path: '/tools/logistics', color: 'from-blue-50 to-blue-100', accent: 'text-blue-600', tag: '实用工具' },
-    { icon: '🛠️', title: '丝网报价', desc: '根据规格快速计算价格', path: '/tools/wiremesh', color: 'from-purple-50 to-purple-100', accent: 'text-purple-600', tag: '行业工具' },
-    { icon: '📊', title: '原材料行情', desc: '钢丝/盘条实时价格', path: '/tools/materials', color: 'from-green-50 to-green-100', accent: 'text-green-600', tag: '市场行情' },
-  ]
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner(prev => (prev + 1) % 3)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
-  const quickTools = [
-    { icon: '📍', title: '电话查询', desc: '安平本地电话黄页', path: '/tools/phone', color: 'from-blue-50 to-blue-100', accent: 'text-blue-600' },
-    { icon: '🧾', title: '快递追踪', desc: '主流快递实时查询', path: '/tools/express', color: 'from-orange-50 to-orange-100', accent: 'text-orange-600' },
-    { icon: '🔢', title: '区号邮编', desc: '安平区号/邮政编码', path: '/tools/postcode', color: 'from-teal-50 to-teal-100', accent: 'text-teal-600' },
-    { icon: '🏥', title: '医院挂号', desc: '安平各大医院预约', path: '/tools/hospital', color: 'from-red-50 to-red-100', accent: 'text-red-600' },
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (keyword.trim()) {
+      navigate(`/search?keyword=${encodeURIComponent(keyword.trim())}`)
+    }
+  }
+
+  const handleKeywordClick = (kw) => {
+    navigate(`/search?keyword=${encodeURIComponent(kw)}`)
+  }
+
+  const BANNERS = [
+    { title: '安平同城网', sub: '安平县本地分类信息平台', gradient: 'from-blue-600 via-blue-500 to-cyan-500', icon: '🏠' },
+    { title: '免费发布信息', sub: '房屋租售 · 招聘求职 · 二手交易', gradient: 'from-orange-500 via-amber-500 to-yellow-500', icon: '📢' },
+    { title: '便民服务', sub: '物流查询 · 丝网报价 · 拼车出行', gradient: 'from-emerald-500 via-teal-500 to-cyan-500', icon: '🛠️' },
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-primary to-blue-400 rounded-xl p-4 sm:p-6 text-white">
-        <h1 className="text-xl sm:text-2xl font-bold mb-1">🏠 安平同城网</h1>
-        <p className="opacity-90 text-xs sm:text-sm">安平县本地便民分类信息平台 · 免费发布 · 快速传播</p>
-        <div className="flex flex-wrap gap-2 sm:gap-4 mt-3 sm:mt-4 text-xs">
-          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🏠 房屋租售</span>
-          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">💼 招聘求职</span>
-          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🚗 二手车</span>
-          <span className="bg-white/20 px-2 sm:px-3 py-1 rounded-full">🔄 二手物品</span>
+    <div className="space-y-6 sm:space-y-8">
+      {/* Hero Banner with Search */}
+      <div className="relative overflow-hidden rounded-2xl">
+        <div className={`absolute inset-0 bg-gradient-to-r ${BANNERS[currentBanner].gradient} transition-all duration-700`} />
+        <div className="absolute inset-0 bg-black/10" />
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
+        
+        <div className="relative px-6 sm:px-10 py-10 sm:py-14">
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            <div className="flex-1 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm mb-4">
+                <span className="text-xl">{BANNERS[currentBanner].icon}</span>
+                <span>{BANNERS[currentBanner].sub}</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
+                {BANNERS[currentBanner].title}
+              </h1>
+              <p className="text-white/80 text-base sm:text-lg">
+                快速传播 · 免费发布 · 真实可靠
+              </p>
+            </div>
+            
+            <div className="w-full max-w-md">
+              <form onSubmit={handleSearch} className="bg-white rounded-2xl p-2 shadow-2xl">
+                <div className="flex gap-2">
+                  <input
+                    value={keyword}
+                    onChange={e => setKeyword(e.target.value)}
+                    placeholder="搜索你感兴趣的内容..."
+                    className="flex-1 px-4 py-3 rounded-xl outline-none text-gray-700 bg-gray-50"
+                  />
+                  <button type="submit" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition">
+                    搜索
+                  </button>
+                </div>
+              </form>
+              
+              {/* Hot keywords */}
+              <div className="flex flex-wrap gap-2 mt-3 justify-center lg:justify-start">
+                <span className="text-white/80 text-xs">热门：</span>
+                {HOT_KEYWORDS.map(kw => (
+                  <button
+                    key={kw}
+                    onClick={() => handleKeywordClick(kw)}
+                    className="text-white/90 text-xs hover:text-white hover:bg-white/20 px-2 py-1 rounded-full transition"
+                  >
+                    {kw}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Banner indicators */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {BANNERS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentBanner(i)}
+              className={`w-2 h-2 rounded-full transition-all ${currentBanner === i ? 'bg-white w-6' : 'bg-white/50'}`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* 热门公告 */}
-      {notices.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-bold text-gray-800 text-sm">📢 最新公告</h2>
-            <Link to="/notices" className="text-xs text-primary hover:underline">查看全部 →</Link>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        {[
+          { label: '实时信息', value: posts.length + '0+', icon: '📋' },
+          { label: '入驻企业', value: companies.length + '0+', icon: '🏢' },
+          { label: '成功匹配', value: '10万+', icon: '✅' },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+            <div className="text-2xl sm:text-3xl mb-1">{stat.icon}</div>
+            <div className="text-lg sm:text-xl font-bold text-gray-800">{stat.value}</div>
+            <div className="text-xs text-gray-500">{stat.label}</div>
           </div>
-          <div className="space-y-2">
-            {notices.map(n => (
-              <Link key={n.id} to={`/notice/${n.id}`} className="flex items-center gap-2 text-sm hover:bg-gray-50 p-2 rounded-lg transition">
-                <span className="bg-blue-100 text-blue-600 text-xs px-1.5 py-0.5 rounded shrink-0">公告</span>
-                <span className="text-gray-700 truncate flex-1">{n.title}</span>
-                <span className="text-xs text-gray-400 shrink-0">{timeAgo(n.created_at)}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* 分类导航 - 10个重要分类 */}
-      <div className="bg-white rounded-xl p-3 sm:p-4">
-        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
-          {IMPORTANT_CATEGORIES.map(cat => (
+      {/* Categories Grid */}
+      <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-lg text-gray-800">📦 信息分类</h2>
+          <Link to="/all-categories" className="text-sm text-blue-500 hover:text-blue-600 transition flex items-center gap-1">
+            全部分类
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+          {IMPORTANT_CATEGORIES.map((cat, i) => (
             <Link
               key={cat.slug}
               to={`/category/${cat.slug}`}
-              className={`flex flex-col items-center gap-1 text-center py-2 sm:py-3 rounded-lg hover:bg-gray-50 transition`}
+              className="group relative overflow-hidden rounded-xl p-4 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              style={{ animationDelay: `${i * 50}ms` }}
             >
-              <span className="text-xl sm:text-2xl">{cat.icon}</span>
-              <span className="text-xs font-medium text-gray-700">{cat.name}</span>
-            </Link>
-          ))}
-          {/* 查看全部 */}
-          <Link
-            to="/all-categories"
-            className="flex flex-col items-center gap-1 text-center py-2 sm:py-3 rounded-lg hover:bg-gray-50 transition text-gray-500"
-          >
-            <span className="text-xl sm:text-2xl">📁</span>
-            <span className="text-xs font-medium">全部分类</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* 便民工具 */}
-      <div>
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🛠️ 便民工具</h2>
-          <Link to="/tools" className="text-xs text-primary hover:underline">查看全部 →</Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {tools.map(tool => (
-            <Link
-              key={tool.path}
-              to={tool.path}
-              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-4 sm:p-5 flex flex-col gap-2`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-2xl sm:text-3xl">{tool.icon}</span>
-                <span className={`text-xs font-medium ${tool.accent} bg-white/70 px-2 py-0.5 rounded-full`}>{tool.tag}</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800 text-sm sm:text-base">{tool.title}</h3>
-                <p className="text-xs text-gray-500 mt-0.5">{tool.desc}</p>
+              <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-2 bg-gray-100 group-hover:bg-white/50 rounded-xl flex items-center justify-center text-2xl sm:text-3xl transition">
+                  {cat.icon}
+                </div>
+                <div className="text-sm font-medium text-gray-700 group-hover:text-white transition">
+                  {cat.name}
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* 便民查询快捷入口 */}
-      <div>
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🔎 便民查询</h2>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          {quickTools.map(tool => (
-            <Link
-              key={tool.path}
-              to={tool.path}
-              className={`card-hover bg-gradient-to-br ${tool.color} border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-2 sm:gap-3`}
-            >
-              <span className="text-xl sm:text-2xl">{tool.icon}</span>
-              <div>
-                <h3 className="font-medium text-gray-800 text-sm">{tool.title}</h3>
-                <p className="text-xs text-gray-500 hidden sm:block">{tool.desc}</p>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Jobs & Promotions */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Hot Jobs */}
+          {jobs.length > 0 && (
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-1 h-6 bg-orange-500 rounded-full" />
+                  <h2 className="font-bold text-lg text-gray-800">💼 热门职位</h2>
+                </div>
+                <Link to="/jobs" className="text-sm text-gray-400 hover:text-orange-500 transition">
+                  查看更多 →
+                </Link>
               </div>
-            </Link>
-          ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {jobs.slice(0, 4).map(job => (
+                  <Link
+                    key={job.id}
+                    to={`/job/${job.id}`}
+                    className="group flex gap-3 p-3 rounded-xl border border-gray-100 hover:border-orange-200 hover:shadow-md transition-all"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
+                      💼
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-800 group-hover:text-orange-600 transition line-clamp-1">
+                        {job.title}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-orange-500 font-bold text-sm">
+                          {job.salary_min ? `${Number(job.salary_min).toLocaleString()}+` : '面议'}
+                        </span>
+                        <span className="text-xs text-gray-400">/月</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                        <span>📍 {job.location || '安平县'}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Latest Posts */}
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-6 bg-blue-500 rounded-full" />
+                <h2 className="font-bold text-lg text-gray-800">🆕 最新信息</h2>
+              </div>
+              <span className="text-xs text-gray-400">实时更新</span>
+            </div>
+            
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <p className="text-4xl mb-2">📋</p>
+                <p>暂无信息，<Link to="/post-create" className="text-blue-500">成为第一个发布者</Link></p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {posts.slice(0, 8).map(post => (
+                  <Link
+                    key={post.id}
+                    to={`/post/${post.id}`}
+                    className="group flex gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all"
+                  >
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl shrink-0">
+                      {CATEGORY_ICONS[post.category_slug] || CATEGORY_ICONS.other}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-800 group-hover:text-blue-600 transition line-clamp-1 text-sm">
+                        {post.title}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-gray-400">{post.category_name}</span>
+                        <span className="text-blue-500 font-bold text-sm">{formatPrice(post.price)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column - Tools & Companies */}
+        <div className="space-y-6">
+          {/* Quick Tools */}
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white">
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <span className="text-2xl">🛠️</span>
+              便民工具
+            </h3>
+            <div className="space-y-2">
+              {[
+                { icon: '🚚', name: '物流查询', desc: '实时追踪快递' },
+                { icon: '🛠️', name: '丝网报价', desc: '快速计算价格' },
+                { icon: '📊', name: '行情资讯', desc: '原材料价格' },
+              ].map(tool => (
+                <Link
+                  key={tool.name}
+                  to={`/tools/${tool.name === '物流查询' ? 'logistics' : tool.name === '丝网报价' ? 'wiremesh' : 'materials'}`}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white/10 hover:bg-white/20 transition"
+                >
+                  <span className="text-2xl">{tool.icon}</span>
+                  <div>
+                    <div className="font-medium">{tool.name}</div>
+                    <div className="text-xs text-white/70">{tool.desc}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Promotions */}
+          {promotions.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-rose-500 rounded-full" />
+                  促销优惠
+                </h3>
+                <Link to="/category/promotions" className="text-xs text-gray-400 hover:text-rose-500">
+                  更多 →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {promotions.slice(0, 3).map(promo => (
+                  <Link
+                    key={promo.id}
+                    to={`/post/${promo.id}`}
+                    className="block group"
+                  >
+                    <div className="flex gap-3 p-2 rounded-xl hover:bg-gray-50 transition">
+                      <div className="w-16 h-16 bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg flex items-center justify-center text-2xl shrink-0">
+                        🎫
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-800 text-sm line-clamp-1 group-hover:text-rose-600 transition">
+                          {promo.title}
+                        </h4>
+                        <p className="text-xs text-gray-400 mt-1 line-clamp-1">{promo.content}</p>
+                        <div className="text-rose-500 font-bold text-sm mt-1">
+                          {promo.price > 0 ? `¥${promo.price}` : '免费'}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notice */}
+          {notices.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-4">
+                <span className="w-1 h-5 bg-amber-500 rounded-full" />
+                平台公告
+              </h3>
+              <div className="space-y-3">
+                {notices.slice(0, 3).map(n => (
+                  <Link
+                    key={n.id}
+                    to={`/notice/${n.id}`}
+                    className="block group"
+                  >
+                    <div className="flex items-start gap-2 p-2 rounded-lg hover:bg-gray-50 transition">
+                      <span className="w-2 h-2 bg-amber-500 rounded-full mt-1.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm text-gray-700 group-hover:text-amber-600 line-clamp-2 transition">
+                          {n.title}
+                        </h4>
+                        <span className="text-xs text-gray-400 mt-1">{timeAgo(n.created_at)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Companies */}
+          {companies.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-emerald-500 rounded-full" />
+                  知名企业
+                </h3>
+                <Link to="/companies" className="text-xs text-gray-400 hover:text-emerald-500">
+                  更多 →
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {companies.slice(0, 4).map(c => (
+                  <Link
+                    key={c.id}
+                    to={`/company/${c.id}`}
+                    className="group text-center p-3 rounded-xl border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all"
+                  >
+                    <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl flex items-center justify-center text-2xl">
+                      🏭
+                    </div>
+                    <div className="text-xs font-medium text-gray-700 group-hover:text-emerald-600 line-clamp-2 transition">
+                      {c.name}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">{c.industry || '综合'}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* App Download */}
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-5 text-white">
+            <div className="text-center">
+              <div className="text-4xl mb-3">📱</div>
+              <h3 className="font-bold text-lg mb-2">安平同城网</h3>
+              <p className="text-sm text-gray-300 mb-4">随时随地，发现安平</p>
+              <div className="flex gap-2 justify-center">
+                <button className="px-4 py-2 bg-white text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
+                  iOS
+                </button>
+                <button className="px-4 py-2 bg-white text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
+                  Android
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 促销打折 */}
-      {promotions.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <h2 className="font-bold text-gray-800 text-base sm:text-lg">🏷️ 促销打折</h2>
-            <Link to="/category/promotions" className="text-xs text-primary hover:underline">查看全部 →</Link>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-            {promotions.map(promo => (
-              <Link
-                key={promo.id}
-                to={`/post/${promo.id}`}
-                className="card-hover bg-white rounded-xl border border-gray-100 overflow-hidden"
-              >
-                <div className="h-24 sm:h-28 bg-gradient-to-br from-fuchsia-50 to-fuchsia-100 flex items-center justify-center text-3xl sm:text-4xl">🏷️</div>
-                <div className="p-2 sm:p-3">
-                  <h3 className="text-sm font-medium text-gray-800 line-clamp-2">{promo.title}</h3>
-                  <div className="flex items-center gap-2 mt-1 sm:mt-2">
-                    {promo.original_price > 0 && promo.price < promo.original_price && (
-                      <span className="text-xs text-gray-400 line-through">¥{promo.original_price}</span>
-                    )}
-                    <span className="text-accent font-bold text-sm">{promo.price > 0 ? `¥${promo.price}` : '免费'}</span>
-                  </div>
-                  {promo.valid_until && (
-                    <p className="text-xs text-gray-400 mt-1">有效期：{promo.valid_until}</p>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 热门招聘 */}
-      {jobs.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <h2 className="font-bold text-gray-800 text-base sm:text-lg">💼 热门招聘</h2>
-            <Link to="/jobs" className="text-xs text-primary hover:underline">更多职位 →</Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-            {jobs.slice(0, 6).map(job => (
-              <Link
-                key={job.id}
-                to={`/job/${job.id}`}
-                className="card-hover bg-white rounded-lg p-3 sm:p-4 flex gap-2 sm:gap-3 border border-gray-100 hover:border-orange-200"
-              >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-orange-50 rounded-lg flex items-center justify-center text-lg sm:text-xl shrink-0">💼</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-medium text-gray-900 text-sm line-clamp-1">{job.title}</h3>
-                    <span className="text-orange-500 font-bold text-sm shrink-0">
-                      {job.salary_min ? `${Number(job.salary_min).toLocaleString()}+` : '面议'}/月
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
-                    <span>📍 {job.location || '安平县'}</span>
-                    <span>{timeAgo(job.created_at)}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 知名企业 */}
-      {companies.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <h2 className="font-bold text-gray-800 text-base sm:text-lg">🏢 知名企业</h2>
-            <Link to="/companies" className="text-xs text-primary hover:underline">查看全部 →</Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-            {companies.slice(0, 6).map(c => (
-              <Link
-                key={c.id}
-                to={`/company/${c.id}`}
-                className="card-hover bg-white rounded-xl p-3 sm:p-4 border border-gray-100 hover:border-indigo-200 text-center"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-2">🏭</div>
-                <div className="text-sm font-medium text-gray-800 truncate">{c.name}</div>
-                <div className="text-xs text-gray-400 mt-0.5">{c.industry || '综合企业'}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 最新信息 */}
-      <div>
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <h2 className="font-bold text-gray-800 text-base sm:text-lg">🆕 最新信息</h2>
-          <span className="text-xs text-gray-400">实时更新 · 快速联系</span>
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-3 sm:p-4 h-20 sm:h-24 animate-pulse" />
-            ))}
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="bg-white rounded-lg p-8 sm:p-12 text-center text-gray-400">
-            <p className="text-3xl sm:text-4xl mb-2">📋</p>
-            <p>暂无信息，<Link to="/post-create" className="text-primary">成为第一个发布者</Link></p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-            {posts.map(post => (
-              <Link
-                key={post.id}
-                to={`/post/${post.id}`}
-                className="card-hover bg-white rounded-lg p-3 sm:p-4 flex gap-3 sm:gap-4 border border-gray-100"
-              >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg sm:text-xl shrink-0">
-                  {CATEGORY_ICONS[post.category_slug] || CATEGORY_ICONS.other}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-medium text-gray-900 text-sm leading-snug line-clamp-1">{post.title}</h3>
-                    <span className="text-accent font-bold text-sm shrink-0">{formatPrice(post.price)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-1.5 text-xs text-gray-400">
-                    <span>{post.category_name}</span>
-                    <span>📍 {post.location || '安平县'}</span>
-                    <span>{timeAgo(post.created_at)}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-1">{post.content}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Post Button Float */}
+      <Link
+        to="/post-create"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-2xl z-40"
+        style={{ boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)' }}
+      >
+        +
+      </Link>
     </div>
   )
 }
