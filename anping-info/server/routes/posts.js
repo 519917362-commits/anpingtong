@@ -45,7 +45,7 @@ router.get('/', (req, res) => {
       params.push(`%${keyword}%`, `%${keyword}%`)
     }
 
-    const total = db.prepare(`SELECT COUNT(*) as cnt FROM (${sql})`, ...params).get(...params)
+    const total = db.prepare(`SELECT COUNT(*) as cnt FROM (${sql})`).get(...params)
     sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?'
     params.push(Number(pageSize), Number(offset))
 

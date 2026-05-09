@@ -208,18 +208,21 @@ const categories = [
   { name: '优惠促销',   slug: 'discounts',         icon: '🎁', sort: 32 },
 ]
 
-// 安全地更新分类数据：先将posts的category_id设为NULL（避免外键约束），再替换分类
-db.pragma('foreign_keys = OFF')
-db.exec('DELETE FROM categories')
-db.exec('DELETE FROM posts')  // 清空posts避免孤儿外键
-const insertCat = db.prepare(`
-  INSERT INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)
-`)
-for (const c of categories) {
-  insertCat.run(c.name, c.slug, c.icon, c.sort)
+// 安全地更新分类数据 - 只在分类表为空时才初始化
+const existingCats = db.prepare('SELECT COUNT(*) as cnt FROM categories').get()
+if (existingCats.cnt === 0) {
+  db.pragma('foreign_keys = OFF')
+  const insertCat = db.prepare(`
+    INSERT INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)
+  `)
+  for (const c of categories) {
+    insertCat.run(c.name, c.slug, c.icon, c.sort)
+  }
+  db.pragma('foreign_keys = ON')
+  console.log('分类数据已初始化')
+} else {
+  console.log(`分类数据已存在 (${existingCats.cnt}条)，跳过初始化`)
 }
-db.pragma('foreign_keys = ON')
-console.log('分类数据已更新')
 
 // 创建种子用户
 const insertUser = db.prepare(`
@@ -317,13 +320,12 @@ if (existingPosts.cnt === 0) {
   const samplePosts = [
     { userId: 2, cat: 'house', title: '🏠 出租：安平县城中心两室一厅', content: '🎯 位置：县城中心地带，周边配套完善\n\n✅ 房屋情况：两室一厅，80平米，南北通透，采光充足\n✅ 家电配置：空调、热水器、洗衣机、冰箱等家电齐全\n✅ 拎包入住：被褥自带即可，省心省力\n\n📍 地址：县城中心，公交便利\n💰 价格：1200元/月（含物业费）\n📞 联系：138-0000-1111', price: 1200, contact: '13800001111', location: '县城中心' },
     { userId: 3, cat: 'house', title: '🏠 出售：盛世名门精装三室两厅', content: '🎯 小区：盛世名门（安平知名小区）\n\n✅ 户型：三室两厅一卫，120平米\n✅ 楼层：中高层，电梯直达\n✅ 装修：精装修，南北通透，采光好\n✅ 学区：临近重点学校，学区名额可用\n\n📍 地址：盛世名门小区\n💰 价格：58万元（可议）\n📞 联系：139-0000-2222', price: 580000, contact: '13900002222', location: '盛世名门' },
-    { userId: 4, cat: 'car', title: '🚗 转让：2019年大众朗逸自动挡', content: '🚘 车辆信息：\n• 车型：2019款大众朗逸 1.5L 自动舒适版\n• 表显里程：5.2万公里\n• 车辆户籍：安平本地牌照\n• 保险到期：2025年12月\n\n✅ 车况说明：一手车，无重大事故，发动机变速箱正常，定期保养，内外饰整洁\n\n💰 报价：6.8万元（可小刀）\n📞 联系：137-0000-3333\n📍 看车地点：安平县城', price: 68000, contact: '13700003333', location: '安平县' },
-    { userId: 2, cat: 'job', companyId: 1, title: '💼 招聘：丝网编织工10名（月薪6000+包吃住）', content: '🏭 安平县金辉丝网制品有限公司\n\n📋 岗位：丝网编织工\n👥 人数：10名\n\n💰 薪资待遇：\n• 月薪：6000-9000元（熟练工可达9000+）\n• 食宿：包吃包住（宿舍有空调）\n• 全勤奖：200元/月\n• 工龄奖：每年涨100元\n• 节日福利：中秋、春节礼品\n\n📋 岗位要求：\n• 年龄：18-50周岁\n• 性别：不限\n• 经验：有无经验均可，有师傅带\n• 身体：健康，吃苦耐劳\n\n📍 地址：安平县工业园区新兴路88号\n📞 联系：0318-7826888（王经理）', price: 0, salary_min: 6000, salary_max: 9000, salary_type: 'month', contact: '0318-7826888', location: '工业园区' },
-    { userId: 3, cat: 'job', companyId: 2, title: '💼 招聘：钢格板销售经理（底薪5000+高提成）', content: '🏢 河北盈昌钢格板有限公司\n\n📋 岗位：销售经理\n👥 人数：5名\n\n💰 薪资待遇：\n• 底薪：5000元/月\n• 提成：高额提成，综合月薪10000-30000\n• 社保：五险\n• 月休：4天\n• 其他：定期团建、年终奖金\n\n📋 岗位要求：\n• 学历：大专及以上\n• 经验：有建材/丝网销售经验优先\n• 能力：善于沟通，能适应短期出差\n\n📍 地址：安平县经济开发区纬二路168号\n📞 联系：0318-7558999（李总）', price: 0, salary_min: 5000, salary_max: 30000, salary_type: 'month', contact: '0318-7558999', location: '经济开发区' },
-    { userId: 4, cat: 'job', companyId: 4, title: '🏗️ 招聘：建筑工程施工员3名', content: '🏢 安平县金友建设工程有限公司\n\n📋 岗位：施工员\n👥 人数：3名\n\n💰 薪资待遇：\n• 月薪：6000-12000元（面议）\n• 社保：五险\n• 食宿：包吃住\n• 其他：绩效奖金\n\n📋 岗位要求：\n• 学历：建筑相关专业大专及以上\n• 证书：持有施工员证优先\n• 经验：2年以上施工现场经验\n• 其他：熟悉工程图纸和施工规范\n\n📍 地址：安平县新盈街168号\n📞 联系：0318-7716888', price: 0, salary_min: 6000, salary_max: 12000, salary_type: 'month', contact: '0318-7716888', location: '县城' },
-    { userId: 2, cat: 'used', title: '🔄 转让：格力变频空调1.5匹', content: '📦 商品详情：\n• 品牌型号：格力变频空调 KFR-35GW\n• 匹数：1.5匹（适合15-22平米房间）\n• 购买时间：2022年5月（使用约2年）\n• 新机价格：当时购买价约2800元\n\n✅ 商品现状：\n• 制冷/制热效果正常\n• 运行噪音低，省电\n• 外观整洁，无损坏\n• 包含原机遥控器\n\n💰 转让价：600元（上门自提可小议）\n📞 联系：135-0000-5555\n📍 地址：安平县城', price: 600, contact: '13500005555', location: '安平县城' },
-    { userId: 3, cat: 'business', title: '🛠️ 安平丝网加工·来料批发', content: '🏭 公司业务：\n• 丝网编织加工\n• 冲孔网、轧花网定制\n• 护栏网、防护网生产\n• 石笼网、格宾网加工\n\n✅ 我们的优势：\n• 厂家直销，价格实惠\n• 规格齐全，支持定制\n• 量大从优，代发全国\n• 质量保障，售后无忧\n\n📦 常备现货：\n• 勾花网、电焊网、荷兰网\n• 不锈钢丝网、铜丝网\n• 网格布、钢丝网\n\n📞 洽谈合作：137-0000-8888\n📍 工厂地址：安平县工业园区', price: 0, contact: '13700008888', location: '工业园区' },
-    { userId: 4, cat: 'life', title: '🔧 24小时专业开锁·换锁·修锁服务', content: '🔐 服务项目：\n• 开锁：门锁、防盗门、保险柜、汽车锁\n• 换锁：C级锁芯、防盗锁、指纹锁\n• 修锁：锁具维修、门锁调整\n\n✅ 服务优势：\n• 公安备案，专业资质\n• 24小时随叫随到，快速上门\n• 价格公道，诚信经营\n\n💰 收费参考：\n• 普通门开锁：80元起\n• 防盗门开锁：100元起\n• 换锁芯：150元起\n\n📞 热线：134-0000-6666\n📍 服务范围：安平县全县域', price: 0, contact: '13400006666', location: '全县域' },
+    { userId: 4, cat: 'vehicle', title: '🚗 转让：2019年大众朗逸自动挡', content: '🚘 车辆信息：\n• 车型：2019款大众朗逸 1.5L 自动舒适版\n• 表显里程：5.2万公里\n• 车辆户籍：安平本地牌照\n• 保险到期：2025年12月\n\n✅ 车况说明：一手车，无重大事故，发动机变速箱正常，定期保养，内外饰整洁\n\n💰 报价：6.8万元（可小刀）\n📞 联系：137-0000-3333\n📍 看车地点：安平县城', price: 68000, contact: '13700003333', location: '安平县' },
+    { userId: 2, cat: 'jobs-recruit', companyId: 1, title: '💼 招聘：丝网编织工10名（月薪6000+包吃住）', content: '🏭 安平县金辉丝网制品有限公司\n\n📋 岗位：丝网编织工\n👥 人数：10名\n\n💰 薪资待遇：\n• 月薪：6000-9000元（熟练工可达9000+）\n• 食宿：包吃包住（宿舍有空调）\n• 全勤奖：200元/月\n• 工龄奖：每年涨100元\n• 节日福利：中秋、春节礼品\n\n📋 岗位要求：\n• 年龄：18-50周岁\n• 性别：不限\n• 经验：有无经验均可，有师傅带\n• 身体：健康，吃苦耐劳\n\n📍 地址：安平县工业园区新兴路88号\n📞 联系：0318-7826888（王经理）', price: 0, salary_min: 6000, salary_max: 9000, salary_type: 'month', contact: '0318-7826888', location: '工业园区' },
+    { userId: 3, cat: 'jobs-recruit', companyId: 2, title: '💼 招聘：钢格板销售经理（底薪5000+高提成）', content: '🏢 河北盈昌钢格板有限公司\n\n📋 岗位：销售经理\n👥 人数：5名\n\n💰 薪资待遇：\n• 底薪：5000元/月\n• 提成：高额提成，综合月薪10000-30000\n• 社保：五险\n• 月休：4天\n• 其他：定期团建、年终奖金\n\n📋 岗位要求：\n• 学历：大专及以上\n• 经验：有建材/丝网销售经验优先\n• 能力：善于沟通，能适应短期出差\n\n📍 地址：安平县经济开发区纬二路168号\n📞 联系：0318-7558999（李总）', price: 0, salary_min: 5000, salary_max: 30000, salary_type: 'month', contact: '0318-7558999', location: '经济开发区' },
+    { userId: 4, cat: 'jobs-recruit', companyId: 4, title: '🏗️ 招聘：建筑工程施工员3名', content: '🏢 安平县金友建设工程有限公司\n\n📋 岗位：施工员\n👥 人数：3名\n\n💰 薪资待遇：\n• 月薪：6000-12000元（面议）\n• 社保：五险\n• 食宿：包吃住\n• 其他：绩效奖金\n\n📋 岗位要求：\n• 学历：建筑相关专业大专及以上\n• 证书：持有施工员证优先\n• 经验：2年以上施工现场经验\n• 其他：熟悉工程图纸和施工规范\n\n📍 地址：安平县新盈街168号\n📞 联系：0318-7716888', price: 0, salary_min: 6000, salary_max: 12000, salary_type: 'month', contact: '0318-7716888', location: '县城' },
+    { userId: 2, cat: 'secondhand', title: '🔄 转让：格力变频空调1.5匹', content: '📦 商品详情：\n• 品牌型号：格力变频空调 KFR-35GW\n• 匹数：1.5匹（适合15-22平米房间）\n• 购买时间：2022年5月（使用约2年）\n• 新机价格：当时购买价约2800元\n\n✅ 商品现状：\n• 制冷/制热效果正常\n• 运行噪音低，省电\n• 外观整洁，无损坏\n• 包含原机遥控器\n\n💰 转让价：600元（上门自提可小议）\n📞 联系：135-0000-5555\n📍 地址：安平县城', price: 600, contact: '13500005555', location: '安平县城' },
+    { userId: 3, cat: 'life', title: '🔧 24小时专业开锁·换锁·修锁服务', content: '🔐 服务项目：\n• 开锁：门锁、防盗门、保险柜、汽车锁\n• 换锁：C级锁芯、防盗锁、指纹锁\n• 修锁：锁具维修、门锁调整\n\n✅ 服务优势：\n• 公安备案，专业资质\n• 24小时随叫随到，快速上门\n• 价格公道，诚信经营\n\n💰 收费参考：\n• 普通门开锁：80元起\n• 防盗门开锁：100元起\n• 换锁芯：150元起\n\n📞 热线：134-0000-6666\n📍 服务范围：安平县全县域', price: 0, contact: '13400006666', location: '全县域' },
   ]
 
   const insertPost = db.prepare(`
