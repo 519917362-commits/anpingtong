@@ -167,7 +167,7 @@ export default function MyPosts() {
   useEffect(() => {
     if (!token) { navigate('/login'); return }
     Promise.all([
-      fetch('/api/user/posts', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+      fetch('/api/user/posts/my', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
       fetch('/api/posts/categories').then(r => r.json()),
     ]).then(([postData, catData]) => {
       if (postData.code === 200) setPosts(postData.data)
@@ -191,7 +191,7 @@ export default function MyPosts() {
   }
 
   const handleEditSuccess = () => {
-    fetch('/api/user/posts', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/user/posts/my', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(d => { if (d.code === 200) setPosts(d.data) })
   }
