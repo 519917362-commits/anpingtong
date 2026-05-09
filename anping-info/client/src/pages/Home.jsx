@@ -1,36 +1,38 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-const FUNCTION_ICONS = [
-  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'bg-red-500' },
-  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'bg-orange-500' },
-  { slug: 'vehicle', name: '新车二手', icon: '🚗', color: 'bg-amber-500' },
-  { slug: 'life', name: '家政保洁', icon: '🧹', color: 'bg-yellow-500' },
-  { slug: 'shop-transfer', name: '生意转让', icon: '🏪', color: 'bg-lime-500' },
-  { slug: 'secondhand', name: '二手交易', icon: '🔄', color: 'bg-green-500' },
-  { slug: 'education', name: '教育培训', icon: '📚', color: 'bg-emerald-500' },
-  { slug: 'electronics', name: '家电数码', icon: '📱', color: 'bg-teal-500' },
-  { slug: 'discounts', name: '优惠促销', icon: '🎁', color: 'bg-cyan-500' },
-  { slug: 'carpool', name: '拼车出行', icon: '🚙', color: 'bg-blue-500' },
+const MAIN_CATEGORIES = [
+  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'bg-red-500', desc: '企业招人·个人求职' },
+  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'bg-orange-500', desc: '租房·买房·商铺' },
+  { slug: 'life', name: '家政保洁', icon: '🧹', color: 'bg-amber-500', desc: '保洁·搬家·维修' },
+  { slug: 'shop-transfer', name: '招商转让', icon: '🏪', color: 'bg-lime-500', desc: '旺铺转让·合伙创业' },
+  { slug: 'secondhand', name: '闲置物品', icon: '🔄', color: 'bg-green-500', desc: '二手买卖·以物换物' },
+  { slug: 'education', name: '教育培训', icon: '📚', color: 'bg-emerald-500', desc: '培训·家教·课程' },
+  { slug: 'wechat-group', name: '本地微信群', icon: '💬', color: 'bg-teal-500', desc: '微信群·社区交流' },
+  { slug: 'companies', name: '同城商家', icon: '🏢', color: 'bg-cyan-500', desc: '本地商家·企业黄页' },
+]
+
+const WIREMESH_CATEGORIES = [
+  { slug: 'wiremesh-machine', name: '丝网机械', icon: '⚙️' },
+  { slug: 'wiremesh-material', name: '原材料', icon: '🔩' },
+  { slug: 'wiremesh-product', name: '丝网制品', icon: '🕸️' },
+  { slug: 'wiremesh-price', name: '今日报价', icon: '📊' },
 ]
 
 const BANNER_SLIDES = [
   {
-    type: 'image',
     image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&h=400&fit=crop',
     title: '安平同城网',
     sub: '本地分类信息平台',
     gradient: 'from-blue-600 to-cyan-500'
   },
   {
-    type: 'image',
     image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=800&h=400&fit=crop',
     title: '免费发布信息',
     sub: '房屋租售 · 招聘求职 · 二手交易',
     gradient: 'from-orange-500 to-amber-500'
   },
   {
-    type: 'image',
     image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=400&fit=crop',
     title: '便民服务',
     sub: '物流查询 · 丝网报价 · 拼车出行',
@@ -40,21 +42,18 @@ const BANNER_SLIDES = [
 
 const AD_BANNERS = [
   { 
-    id: 1,
     title: '🏠 精装二手房推荐',
     sub: '户型好·采光佳·配套完善',
     bg: 'from-orange-500 to-red-500',
     link: '/category/house'
   },
   { 
-    id: 2,
     title: '💼 名企高薪急招',
     sub: '五险一金·年终奖金·福利多多',
     bg: 'from-blue-500 to-indigo-500',
     link: '/jobs'
   },
   { 
-    id: 3,
     title: '🚗 新车特惠专场',
     sub: '厂家直销·限时优惠·可分期',
     bg: 'from-gray-700 to-gray-900',
@@ -67,7 +66,10 @@ const CATEGORY_ICONS = {
   business: '🛠️', shop: '🏪', life: '☕', edu: '📚',
   missing: '🔍', electronics: '📱', 'home-materials': '🏗️',
   discounts: '🎁', carpool: '🚙', promotions: '🏷️',
-  tools: '🔎', qa: '🔮', other: '📌'
+  tools: '🔎', qa: '🔮', other: '📌',
+  'wechat-group': '💬', 'wiremesh-machine': '⚙️',
+  'wiremesh-material': '🔩', 'wiremesh-product': '🕸️',
+  'wiremesh-price': '📊'
 }
 
 function timeAgo(dateStr) {
@@ -142,10 +144,9 @@ export default function Home() {
 
   const displaySlides = banners.length > 0 
     ? banners.map(b => ({
-        type: 'admin',
         image: b.image_url,
         title: b.title,
-        sub: b.link_type,
+        sub: b.link_type === 'none' ? '' : `点击查看详情`,
         gradient: 'from-gray-800 to-gray-900'
       }))
     : BANNER_SLIDES
@@ -187,32 +188,20 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="px-4 py-4 space-y-4">
-        {/* Banner Carousel with Real Images */}
+        {/* Banner Carousel */}
         <div className="relative rounded-2xl overflow-hidden shadow-lg">
-          {currentSlide.type === 'admin' && currentSlide.image ? (
-            <div 
-              className="relative cursor-pointer"
-              onClick={() => handleBannerClick(currentSlide)}
-            >
-              <img 
-                src={currentSlide.image} 
-                alt={currentSlide.title}
-                className="w-full h-36 sm:h-44 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <h2 className="text-lg font-bold">{currentSlide.title}</h2>
-                <p className="text-white/80 text-sm">{currentSlide.sub}</p>
-              </div>
+          <div className="relative cursor-pointer" onClick={() => banners.length > 0 ? handleBannerClick(banners[currentBanner]) : null}>
+            <img 
+              src={currentSlide.image} 
+              alt={currentSlide.title}
+              className="w-full h-36 sm:h-44 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute bottom-4 left-4 text-white">
+              <h2 className="text-lg font-bold">{currentSlide.title}</h2>
+              <p className="text-white/80 text-sm">{currentSlide.sub}</p>
             </div>
-          ) : (
-            <div className={`bg-gradient-to-r ${currentSlide.gradient} px-6 py-6`}>
-              <div>
-                <h2 className="text-xl font-bold text-white">{currentSlide.title}</h2>
-                <p className="text-white/80 text-sm mt-1">{currentSlide.sub}</p>
-              </div>
-            </div>
-          )}
+          </div>
           <div className="absolute bottom-3 right-3 flex gap-1.5">
             {displaySlides.map((_, i) => (
               <button
@@ -224,41 +213,23 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Ad Banner 1 */}
-        <Link to="/category/house" className={`block bg-gradient-to-r ${AD_BANNERS[0].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-          <p className="font-bold text-lg">{AD_BANNERS[0].title}</p>
-          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[0].sub}</p>
-          <span className="inline-block mt-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">立即查看 →</span>
-        </Link>
-
-        {/* Function Icons Grid */}
+        {/* Main Categories - 8 Grid */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="grid grid-cols-5 gap-3">
-            {FUNCTION_ICONS.map(item => (
+          <div className="grid grid-cols-4 gap-3">
+            {MAIN_CATEGORIES.slice(0, 8).map(item => (
               <Link
                 key={item.slug}
-                to={`/category/${item.slug}`}
+                to={item.slug === 'companies' ? '/companies' : `/category/${item.slug}`}
                 className="flex flex-col items-center gap-1.5"
               >
-                <div className={`${item.color} w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
+                <div className={`${item.color} w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg`}>
                   {item.icon}
                 </div>
-                <span className="text-xs text-gray-600">{item.name}</span>
+                <span className="text-xs text-gray-700 font-medium">{item.name}</span>
               </Link>
             ))}
           </div>
         </div>
-
-        {/* Ad Banner 2 */}
-        <Link to="/jobs" className={`block bg-gradient-to-r ${AD_BANNERS[1].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-          <p className="font-bold text-lg">{AD_BANNERS[1].title}</p>
-          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[1].sub}</p>
-          <span className="inline-block mt-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">立即查看 →</span>
-        </Link>
 
         {/* Notice Bar */}
         {notices.length > 0 && (
@@ -270,6 +241,40 @@ export default function Home() {
             <Link to={`/notice/${notices[0].id}`} className="text-amber-500 text-xs">详情 →</Link>
           </div>
         )}
+
+        {/* Wiremesh Industry Section */}
+        <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🕸️</span>
+              <div>
+                <h3 className="font-bold text-white">丝网产业链</h3>
+                <p className="text-white/60 text-xs">安平特色产业</p>
+              </div>
+            </div>
+            <Link to="/tools/wiremesh" className="text-white/80 text-xs">更多 →</Link>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {WIREMESH_CATEGORIES.map(item => (
+              <Link
+                key={item.slug}
+                to={`/category/${item.slug}`}
+                className="bg-white/10 rounded-xl p-3 text-center hover:bg-white/20 transition"
+              >
+                <span className="text-2xl">{item.icon}</span>
+                <p className="text-white text-xs mt-1">{item.name}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Ad Banner 1 */}
+        <Link to="/category/house" className={`block bg-gradient-to-r ${AD_BANNERS[0].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <p className="font-bold text-lg">{AD_BANNERS[0].title}</p>
+          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[0].sub}</p>
+          <span className="inline-block mt-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">立即查看 →</span>
+        </Link>
 
         {/* Local Businesses */}
         {companies.length > 0 && (
@@ -296,12 +301,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* Ad Banner 3 */}
-        <Link to="/category/vehicle" className={`block bg-gradient-to-r ${AD_BANNERS[2].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
+        {/* Ad Banner 2 */}
+        <Link to="/jobs" className={`block bg-gradient-to-r ${AD_BANNERS[1].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-          <p className="font-bold text-lg">{AD_BANNERS[2].title}</p>
-          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[2].sub}</p>
+          <p className="font-bold text-lg">{AD_BANNERS[1].title}</p>
+          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[1].sub}</p>
           <span className="inline-block mt-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">立即查看 →</span>
         </Link>
 
@@ -339,19 +343,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Ad Banner 4 - Full Width Image */}
-        <Link to="/post-create" className="block relative rounded-2xl overflow-hidden shadow-sm">
-          <img 
-            src="https://images.unsplash.com/photo-1553484771-371a605b060b?w=800&h=200&fit=crop" 
-            alt="发布信息"
-            className="w-full h-24 sm:h-32 object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-pink-600/80 flex items-center justify-center">
-            <div className="text-center text-white">
-              <p className="font-bold text-lg">免费发布信息</p>
-              <p className="text-white/80 text-sm">房屋租售 · 招聘求职 · 二手交易</p>
-            </div>
-          </div>
+        {/* Ad Banner 3 */}
+        <Link to="/category/vehicle" className={`block bg-gradient-to-r ${AD_BANNERS[2].bg} rounded-xl p-4 text-white relative overflow-hidden`}>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <p className="font-bold text-lg">{AD_BANNERS[2].title}</p>
+          <p className="text-white/80 text-sm mt-1">{AD_BANNERS[2].sub}</p>
+          <span className="inline-block mt-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs">立即查看 →</span>
         </Link>
 
         {/* Tools Quick Access */}

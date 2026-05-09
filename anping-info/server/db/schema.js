@@ -186,24 +186,25 @@ if (!existingAdmin) {
 }
 
 // 种子分类数据
-// 14个板块分类（10个分类信息 + 4个专项板块）
+// 14个板块分类（主要8个 + 丝网4个 + 其他2个）
 const categories = [
-  // === 分类信息（10个）===
+  // === 主要分类（8个）===
   { name: '招聘求职',   slug: 'jobs-recruit',    icon: '💼', sort: 1  },
-  { name: '二手买卖',   slug: 'secondhand',       icon: '🔄', sort: 2  },
-  { name: '房屋租售',   slug: 'house',           icon: '🏠', sort: 3  },
-  { name: '旺铺转让',   slug: 'shop-transfer',   icon: '🏪', sort: 4  },
-  { name: '车辆交易',   slug: 'vehicle',         icon: '🚗', sort: 5  },
-  { name: '寻人寻物',   slug: 'missing',         icon: '🔍', sort: 6  },
-  { name: '家电数码',   slug: 'electronics',     icon: '📱', sort: 7  },
-  { name: '教育培训',   slug: 'education',       icon: '📚', sort: 8  },
-  { name: '家居建材',   slug: 'home-materials',  icon: '🏗️', sort: 9  },
-  { name: '优惠信息',   slug: 'discounts',       icon: '🎁', sort: 10 },
-  // === 专项板块（4个）===
-  { name: '拼车出行',   slug: 'carpool',          icon: '🚙', sort: 11 },
-  { name: '促销打折',   slug: 'promotions',      icon: '🏷️', sort: 12 },
-  { name: '便民查询',   slug: 'tools',           icon: '🔎', sort: 13 },
-  { name: '全城知道',   slug: 'qa',              icon: '🔮', sort: 14 },
+  { name: '房屋租售',   slug: 'house',           icon: '🏠', sort: 2  },
+  { name: '家政保洁',   slug: 'life',             icon: '🧹', sort: 3  },
+  { name: '招商转让',   slug: 'shop-transfer',    icon: '🏪', sort: 4  },
+  { name: '闲置物品',   slug: 'secondhand',       icon: '🔄', sort: 5  },
+  { name: '教育培训',   slug: 'education',        icon: '📚', sort: 6  },
+  { name: '本地微信群', slug: 'wechat-group',     icon: '💬', sort: 7  },
+  { name: '同城商家',   slug: 'companies',        icon: '🏢', sort: 8  },
+  // === 丝网产业链（4个）===
+  { name: '丝网机械',   slug: 'wiremesh-machine',  icon: '⚙️', sort: 21 },
+  { name: '原材料供应', slug: 'wiremesh-material', icon: '🔩', sort: 22 },
+  { name: '丝网制品',   slug: 'wiremesh-product', icon: '🕸️', sort: 23 },
+  { name: '丝网报价',   slug: 'wiremesh-price',   icon: '📊', sort: 24 },
+  // === 其他分类（2个）===
+  { name: '车辆服务',   slug: 'vehicle',          icon: '🚗', sort: 31 },
+  { name: '优惠促销',   slug: 'discounts',         icon: '🎁', sort: 32 },
 ]
 
 // 安全地更新分类数据：先将posts的category_id设为NULL（避免外键约束），再替换分类

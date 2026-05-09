@@ -11,24 +11,42 @@ insertUser.run('test002', '$2a$10$8K1p/a0dR1xqM8K9Q6Y1uOv7qQv5G3Kj5L6M4N5O6P7Q8R
 insertUser.run('test003', '$2a$10$8K1p/a0dR1xqM8K9Q6Y1uOv7qQv5G3Kj5L6M4N5O6P7Q8R9S0T1U', '安平张女士', '13900000003', 'user', 'active')
 console.log('默认用户已创建')
 
-// 种子分类数据
-const categories = [
-  { name: '房屋租售', slug: 'house',     icon: '🏠', sort: 1 },
-  { name: '车辆服务', slug: 'car',       icon: '🚗', sort: 2 },
-  { name: '招聘求职', slug: 'job',       icon: '💼', sort: 3 },
-  { name: '商务服务', slug: 'business',  icon: '🛠️', sort: 4 },
-  { name: '二手物品', slug: 'used',      icon: '🔄', sort: 5 },
-  { name: '生活服务', slug: 'life',      icon: '☕', sort: 6 },
-  { name: '教育培训', slug: 'edu',       icon: '📚', sort: 7 },
-  { name: '其他信息', slug: 'other',     icon: '📌', sort: 8 },
+// 种子分类数据 - 主要分类
+const mainCategories = [
+  { name: '招聘求职', slug: 'jobs-recruit', icon: '💼', sort: 1, type: 'main' },
+  { name: '房屋租售', slug: 'house', icon: '🏠', sort: 2, type: 'main' },
+  { name: '家政保洁', slug: 'life', icon: '🧹', sort: 3, type: 'main' },
+  { name: '招商转让', slug: 'shop-transfer', icon: '🏪', sort: 4, type: 'main' },
+  { name: '闲置物品', slug: 'secondhand', icon: '🔄', sort: 5, type: 'main' },
+  { name: '教育培训', slug: 'education', icon: '📚', sort: 6, type: 'main' },
+  { name: '本地微信群', slug: 'wechat-group', icon: '💬', sort: 7, type: 'main' },
+  { name: '同城商家', slug: 'companies', icon: '🏢', sort: 8, type: 'main' },
 ]
 
+// 丝网产业链分类
+const wiremeshCategories = [
+  { name: '丝网机械', slug: 'wiremesh-machine', icon: '⚙️', sort: 21, type: 'wiremesh' },
+  { name: '原材料供应', slug: 'wiremesh-material', icon: '🔩', sort: 22, type: 'wiremesh' },
+  { name: '丝网制品', slug: 'wiremesh-product', icon: '🕸️', sort: 23, type: 'wiremesh' },
+  { name: '丝网报价', slug: 'wiremesh-price', icon: '📊', sort: 24, type: 'wiremesh' },
+]
+
+// 其他分类
+const otherCategories = [
+  { name: '车辆服务', slug: 'vehicle', icon: '🚗', sort: 31, type: 'other' },
+  { name: '拼车出行', slug: 'carpool', icon: '🚙', sort: 32, type: 'other' },
+  { name: '优惠促销', slug: 'discounts', icon: '🎁', sort: 33, type: 'other' },
+  { name: '全城知道', slug: 'qa', icon: '🔮', sort: 34, type: 'other' },
+]
+
+const allCategories = [...mainCategories, ...wiremeshCategories, ...otherCategories]
+
 const insertCat = db.prepare(`
-  INSERT OR IGNORE INTO categories (name, slug, icon, sort_order) VALUES (?, ?, ?, ?)
+  INSERT OR IGNORE INTO categories (name, slug, icon, sort_order, type) VALUES (?, ?, ?, ?, ?)
 `)
 
-for (const c of categories) {
-  insertCat.run(c.name, c.slug, c.icon, c.sort)
+for (const c of allCategories) {
+  insertCat.run(c.name, c.slug, c.icon, c.sort, c.type)
 }
 
 // 种子一些示例帖子
