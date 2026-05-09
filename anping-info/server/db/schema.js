@@ -46,6 +46,7 @@ db.exec(`
     location    TEXT    DEFAULT '',
     views       INTEGER DEFAULT 0,
     status      TEXT    DEFAULT 'pending',
+    source_url  TEXT    DEFAULT '',
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id)     REFERENCES users(id),
