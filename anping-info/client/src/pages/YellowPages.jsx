@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 
 const POWER_STATIONS = [
   { name: '安北供电所', phone: '0318-7503070' },
@@ -12,11 +12,115 @@ const POWER_STATIONS = [
 ]
 
 const HOSPITALS = [
-  { name: '安平县人民医院', address: '安平县光明街', phone: '0318-7524567' },
-  { name: '安平县中医院', address: '安平县新盈街东段324号', phone: '0318-7524568' },
-  { name: '安平县康融医院', address: '安平县新盈街3号', phone: '0318-7524569' },
-  { name: '安平县网都医院', address: '安平县北新大道55号', phone: '0318-7524570' },
-  { name: '安平县爱民医院', address: '安平县鹤煌大道', phone: '0318-7524571' },
+  {
+    name: '安平县人民医院',
+    address: '安平县光明街',
+    phone: '0318-7524567',
+    departments: []
+  },
+  {
+    name: '安平县中医院',
+    address: '安平县新盈街东段324号',
+    phone: '0318-7691120',
+    departments: [
+      { name: '内1门诊', phone: '0318-7585677' },
+      { name: '内3门诊', phone: '0318-7585768' },
+      { name: '内5门诊', phone: '0318-7585998' },
+      { name: '普外科门诊', phone: '0318-7585506' },
+      { name: '骨外科门诊', phone: '0318-7585508' },
+      { name: '肛肠科门诊', phone: '0318-7585586' },
+      { name: '妇科门诊', phone: '0318-7585288' },
+      { name: '儿科门诊', phone: '0318-7585665' },
+      { name: '耳鼻喉门诊', phone: '0318-7585625' },
+      { name: '慢病门诊', phone: '0318-7585118' },
+      { name: '针灸1科门诊', phone: '0318-7585268' },
+      { name: '针灸2科门诊', phone: '15033181976' },
+      { name: '麻醉门诊', phone: '0318-7585800' },
+      { name: '眼科门诊', phone: '0318-7585626' },
+      { name: '医保科', phone: '0318-7585619' },
+      { name: '内科病房', phone: '0318-7585621' },
+      { name: '外科病房', phone: '0318-7585622' },
+      { name: '妇科病房', phone: '0318-7585620' },
+      { name: '儿科病房', phone: '0318-7585620' },
+    ]
+  },
+  {
+    name: '安平县康融医院',
+    address: '安平县新盈街3号',
+    phone: '0318-7511120',
+    departments: [
+      { name: '院办公室', phone: '15531801150' },
+      { name: '院办公室', phone: '15132878970' },
+      { name: '院办公室', phone: '13931811595' },
+      { name: '泌尿外科', phone: '13932808686' },
+      { name: '泌尿外科', phone: '18618255677' },
+      { name: '泌尿外科', phone: '13785823331' },
+      { name: '泌尿外科', phone: '15030827988' },
+      { name: '急救电话', phone: '0318-7661206' },
+      { name: '急救电话', phone: '0318-7990120' },
+      { name: '急救电话', phone: '13831856123' },
+      { name: '疫苗接种', phone: '13233932419' },
+      { name: '疫苗接种', phone: '15533823518' },
+      { name: '疫苗接种', phone: '15303389585' },
+      { name: '疫苗接种', phone: '13931808600' },
+    ]
+  },
+  {
+    name: '安平县网都医院',
+    address: '安平县北新大道55号',
+    phone: '0318-7511000',
+    departments: [
+      { name: '急救中心', phone: '0318-7511222' },
+      { name: '急救中心', phone: '0318-7888683' },
+      { name: '急救中心', phone: '0318-7888677' },
+      { name: '急救中心', phone: '0318-7888691' },
+      { name: '急救中心', phone: '0318-7888692' },
+      { name: '急救中心', phone: '0318-7888690' },
+      { name: '血透中心', phone: '0318-7888681' },
+      { name: '血透中心', phone: '0318-7888682' },
+      { name: '血透中心', phone: '0318-7888693' },
+      { name: '儿科门诊', phone: '0318-7520666' },
+      { name: '皮肤科门诊', phone: '0318-7520666' },
+      { name: '疼痛科门诊', phone: '0318-7520666' },
+      { name: '康复科门诊', phone: '13582682009' },
+      { name: '内科2门诊', phone: '15369856191' },
+      { name: '外科门诊', phone: '0318-7520666' },
+      { name: '妇科门诊', phone: '0318-7520666' },
+      { name: '产科门诊', phone: '0318-7520666' },
+      { name: '耳鼻喉科', phone: '15303381777' },
+      { name: '眼科门诊', phone: '13722835896' },
+      { name: '医院办公室', phone: '0318-7515382' },
+      { name: '骨科门诊', phone: '0318-7520666' },
+      { name: '普外门诊', phone: '0318-7520666' },
+      { name: '泌尿科门诊', phone: '0318-7520666' },
+    ]
+  },
+  {
+    name: '安平县爱民医院',
+    address: '安平县鹤煌大道',
+    phone: '0318-7893333',
+    departments: [
+      { name: '急救中心', phone: '17332539442' },
+      { name: '心脑血管科', phone: '15031859286' },
+      { name: '呼吸消化科', phone: '13653283407' },
+      { name: '骨科（疼痛）科', phone: '15832878120' },
+      { name: '骨科（疼痛）科', phone: '15731889120' },
+      { name: '泌尿外科', phone: '13623380673' },
+      { name: '手足外科', phone: '15131894973' },
+      { name: '手足外科', phone: '18832808671' },
+      { name: '手足外科', phone: '17395922717' },
+      { name: '手足外科', phone: '13785870511' },
+      { name: '手足外科', phone: '13833897668' },
+      { name: '手足外科', phone: '15932296578' },
+      { name: '烧烫伤科', phone: '15297642686' },
+      { name: '耳鼻喉科', phone: '13932898328' },
+      { name: '耳鼻喉科', phone: '18032156330' },
+      { name: '内科住院部', phone: '13785837972' },
+      { name: '外科住院部', phone: '15175820910' },
+      { name: '儿科住院部', phone: '15731800350' },
+      { name: '妇产科住院部', phone: '18732882856' },
+    ]
+  },
 ]
 
 const TOWNSHIP_HOSPITALS = [
@@ -24,9 +128,22 @@ const TOWNSHIP_HOSPITALS = [
   { name: '马店镇卫生院', phone: '0318-7712345' },
   { name: '东黄城卫生院', phone: '0318-7723456' },
   { name: '大子文镇卫生院', phone: '0318-7734567' },
+  { name: '安平镇卫生院', phone: '' },
+  { name: '大何庄乡卫生院', phone: '' },
+  { name: '程油子乡卫生院', phone: '' },
+  { name: '南王庄镇卫生院', phone: '' },
 ]
 
 export default function YellowPages() {
+  const [expandedHospitals, setExpandedHospitals] = useState({})
+
+  const toggleHospital = (index) => {
+    setExpandedHospitals(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
+  }
+
   return (
     <div className="space-y-6">
       {/* 页面标题 */}
@@ -71,26 +188,73 @@ export default function YellowPages() {
         </h2>
         <div className="space-y-3">
           {HOSPITALS.map((hospital, index) => (
-            <div
-              key={index}
-              className="p-4 bg-gray-50 rounded-xl hover:bg-red-50 transition"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="font-medium text-gray-800 text-lg">{hospital.name}</div>
-                  <div className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                    <span>📍</span>
-                    <span>{hospital.address}</span>
+            <div key={index} className="border border-gray-200 rounded-xl overflow-hidden">
+              {/* 医院主信息 */}
+              <div
+                className="p-4 bg-gray-50 hover:bg-red-50 transition cursor-pointer"
+                onClick={() => hospital.departments.length > 0 && toggleHospital(index)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <div className="font-medium text-gray-800 text-lg">{hospital.name}</div>
+                      {hospital.departments.length > 0 && (
+                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded">
+                          {hospital.departments.length}个诊室
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                      <span>📍</span>
+                      <span>{hospital.address}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`tel:${hospital.phone}`}
+                      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className="text-lg">📞</span>
+                      <span className="font-medium">{hospital.phone}</span>
+                    </a>
+                    {hospital.departments.length > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleHospital(index)
+                        }}
+                        className="p-2 text-gray-500 hover:text-blue-500 transition"
+                      >
+                        {expandedHospitals[index] ? '▲' : '▼'}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <a
-                  href={`tel:${hospital.phone}`}
-                  className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shrink-0"
-                >
-                  <span className="text-lg">📞</span>
-                  <span className="font-medium">{hospital.phone}</span>
-                </a>
               </div>
+
+              {/* 诊室详情 */}
+              {expandedHospitals[index] && hospital.departments.length > 0 && (
+                <div className="border-t border-gray-200 bg-white p-4">
+                  <h3 className="text-sm font-medium text-gray-600 mb-3">🩺 诊室电话</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {hospital.departments.map((dept, deptIndex) => (
+                      <div
+                        key={deptIndex}
+                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-blue-50 transition"
+                      >
+                        <span className="text-sm text-gray-700 truncate">{dept.name}</span>
+                        <a
+                          href={`tel:${dept.phone}`}
+                          className="text-blue-500 hover:text-blue-700 font-medium text-sm ml-2 shrink-0"
+                        >
+                          {dept.phone}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -109,13 +273,17 @@ export default function YellowPages() {
               className="p-3 bg-gray-50 rounded-xl text-center hover:bg-green-50 transition"
             >
               <div className="font-medium text-gray-700 mb-2">{hospital.name}</div>
-              <a
-                href={`tel:${hospital.phone}`}
-                className="inline-flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-green-600 transition"
-              >
-                <span>📞</span>
-                <span>{hospital.phone}</span>
-              </a>
+              {hospital.phone ? (
+                <a
+                  href={`tel:${hospital.phone}`}
+                  className="inline-flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-green-600 transition"
+                >
+                  <span>📞</span>
+                  <span>{hospital.phone}</span>
+                </a>
+              ) : (
+                <span className="text-sm text-gray-400">暂无电话</span>
+              )}
             </div>
           ))}
         </div>
@@ -127,8 +295,8 @@ export default function YellowPages() {
         <ul className="text-sm text-amber-700 space-y-1">
           <li>• 如遇供电故障，请拨打当地供电所电话报修</li>
           <li>• 紧急医疗情况请直接拨打120急救电话</li>
-          <li>• 卫生院主要为周边村民提供基础医疗服务</li>
-          <li>• 如需转院治疗，请咨询县级医院医生建议</li>
+          <li>• 点击医院名称可查看各诊室详细电话</li>
+          <li>• 点击电话可直接拨打</li>
         </ul>
       </div>
     </div>
