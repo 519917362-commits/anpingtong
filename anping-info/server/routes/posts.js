@@ -160,25 +160,25 @@ router.get('/', (req, res) => {
 // 获取单个帖子详情
 router.get('/:id', (req, res) => {
   try {
+    const postId = req.params.id
     const post = db.prepare(`
-      SELECT p.*, u.username, u.avatar as user_avatar, u.phone as user_phone,
-             c.name as category_name, c.slug as category_slug, c.icon as category_icon,
-             a.name as area_name
+      SELECT p.*, u.username, u.phone as user_phone,
+             c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN areas a ON p.area_id = a.id
       WHERE p.id = ?
-    `).get(req.params.id)
+    `).get(postId)
 
     if (!post) return res.json({ code: 404, message: '帖子不存在' })
 
-    db.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').run(req.params.id)
+    db.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').run(postId)
     post.views += 1
 
     res.json({ code: 200, data: post })
   } catch (err) {
-    res.json({ code: 500, message: '服务器错误' })
+    console.error('获取帖子详情失败:', err)
+    res.json({ code: 500, message: '服务器错误: ' + err.message })
   }
 })
 
