@@ -65,7 +65,7 @@ app.get('*', (req, res, next) => {
   res.sendFile(path.join(distPath, 'index.html'))
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🏠 安平同城网 服务端已启动`)
   console.log(`📡 API: http://localhost:${PORT}/api`)
   console.log(`🌐 前台: http://localhost:${PORT}`)
