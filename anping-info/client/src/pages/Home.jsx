@@ -154,38 +154,7 @@ export default function Home() {
   const currentSlide = displaySlides[currentBanner]
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
-      <header className="bg-white sticky top-0 z-50 shadow-sm">
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowCityModal(true)}
-              className="flex items-center gap-1 text-gray-700 font-medium"
-            >
-              <span className="text-lg">📍</span>
-              <span className="text-sm">{currentCity}</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            
-            <form onSubmit={handleSearch} className="flex-1 relative">
-              <input
-                type="text"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="请输入关键词搜索..."
-                className="w-full bg-gray-100 rounded-full px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-              />
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </form>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
       <main className="px-4 py-4 space-y-4">
         {/* Banner Carousel */}
@@ -373,32 +342,6 @@ export default function Home() {
         </div>
 
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 px-2 py-2 shadow-lg">
-        <div className="flex items-center justify-around">
-          {[
-            { path: '/', icon: '🏠', label: '首页' },
-            { path: '/companies', icon: '🏪', label: '好店' },
-            { path: '/post-create', icon: '+', label: '', special: true },
-            { path: '/tools', icon: '🛠️', label: '工具' },
-            { path: '/profile', icon: '👤', label: '我的' },
-          ].map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center py-1 ${
-                item.special 
-                  ? 'w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full text-white flex items-center justify-center shadow-lg -mt-4' 
-                  : 'text-gray-400 hover:text-orange-500 transition'
-              }`}
-            >
-              <span className={`text-xl ${item.special ? 'text-2xl font-bold' : ''}`}>{item.icon}</span>
-              {item.label && <span className="text-xs mt-0.5">{item.label}</span>}
-            </Link>
-          ))}
-        </div>
-      </nav>
 
       {/* City Modal */}
       {showCityModal && (
