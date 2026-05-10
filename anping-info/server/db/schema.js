@@ -192,10 +192,10 @@ const categories = [
   // === 主要分类（8个）===
   { name: '招聘求职',   slug: 'jobs-recruit',    icon: '💼', sort: 1  },
   { name: '房屋租售',   slug: 'house',           icon: '🏠', sort: 2  },
-  { name: '家政保洁',   slug: 'life',             icon: '🧹', sort: 3  },
+  { name: '上门服务',   slug: 'door-service',    icon: '🔧', sort: 3  },
   { name: '招商转让',   slug: 'shop-transfer',    icon: '🏪', sort: 4  },
   { name: '闲置物品',   slug: 'secondhand',       icon: '🔄', sort: 5  },
-  { name: '教育培训',   slug: 'education',        icon: '📚', sort: 6  },
+  { name: '新鲜事',     slug: 'news',             icon: '📰', sort: 6  },
   { name: '本地微信群', slug: 'wechat-group',     icon: '💬', sort: 7  },
   { name: '同城商家',   slug: 'companies',        icon: '🏢', sort: 8  },
   // === 丝网产业链（4个）===
