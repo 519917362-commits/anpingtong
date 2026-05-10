@@ -108,7 +108,7 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* Logo + 搜索 + 发布按钮 */}
+        {/* Logo + 搜索 + 发布按钮 - 与分类资讯样式一致 */}
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3 sm:gap-6">
             <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -119,7 +119,7 @@ export default function Layout() {
               </div>
             </Link>
 
-            {/* 搜索框 - 移动端缩小 */}
+            {/* 搜索框 - 非首页显示 */}
             {location.pathname !== '/' && (
               <form onSubmit={handleSearch} className="flex-1 max-w-xl flex border border-gray-200 rounded-full overflow-hidden">
                 <input
@@ -135,13 +135,13 @@ export default function Layout() {
               </form>
             )}
 
-            {/* 发布按钮 - 移动端简化 */}
+            {/* 发布按钮 */}
             <Link
               to={user ? '/post-create' : '/login'}
-              className="bg-orange-500 text-white px-3 sm:px-5 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition shrink-0"
+              className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 sm:px-6 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition shrink-0 shadow-md"
             >
               <span className="sm:hidden">+</span>
-              <span className="hidden sm:inline">发布</span>
+              <span className="hidden sm:inline">+ 发布信息</span>
             </Link>
           </div>
         </div>
