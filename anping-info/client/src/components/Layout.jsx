@@ -32,13 +32,46 @@ export default function Layout() {
 
   const NAV_ITEMS = [
     { name: '首页', path: '/', icon: '🏠' },
-    { name: '分类', path: '/categories', icon: '📑' },
-    { name: '资讯', path: '/notices', icon: '📰' },
+    { name: '丝网产业', path: '/tools/wiremesh', icon: '🕸️' },
+    { name: '分类资讯', path: '/categories', icon: '📑' },
     { name: '我的', path: user ? '/my-posts' : '/login', icon: '👤' },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Web端顶部条幅广告 - 仅在桌面端显示 */}
+      <div className="hidden md:block bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+        <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🏠</span>
+            <div>
+              <div className="font-bold text-sm">安平同城网</div>
+              <div className="text-xs text-blue-200">安平县本地分类信息平台</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <Link to="/tools/wiremesh" className="hover:text-blue-200 transition text-sm flex items-center gap-1">
+              <span>🕸️</span>
+              <span>丝网产业</span>
+            </Link>
+            <Link to="/categories" className="hover:text-blue-200 transition text-sm flex items-center gap-1">
+              <span>📑</span>
+              <span>分类资讯</span>
+            </Link>
+            <Link to="/companies" className="hover:text-blue-200 transition text-sm flex items-center gap-1">
+              <span>🏢</span>
+              <span>同城商家</span>
+            </Link>
+          </div>
+          <Link
+            to={user ? '/post-create' : '/login'}
+            className="bg-white text-blue-600 px-5 py-2 rounded-full text-sm font-medium hover:bg-blue-50 transition"
+          >
+            + 发布信息
+          </Link>
+        </div>
+      </div>
+
       {/* 顶部公告栏 - 仅在非首页显示 */}
       {location.pathname !== '/' && notice && (
         <Link
