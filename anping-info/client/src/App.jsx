@@ -13,6 +13,7 @@ import ToolsHome from './pages/tools/ToolsHome'
 import LogisticsTool from './pages/tools/LogisticsTool'
 import WiremeshTool from './pages/tools/WiremeshTool'
 import MaterialsTool from './pages/tools/MaterialsTool'
+import SoundBarrierTool from './pages/tools/SoundBarrierTool'
 import Jobs from './pages/Jobs'
 import JobDetail from './pages/JobDetail'
 import Companies from './pages/Companies'
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="tools/logistics" element={<LogisticsTool />} />
             <Route path="tools/wiremesh" element={<WiremeshTool />} />
             <Route path="tools/materials" element={<MaterialsTool />} />
+            <Route path="tools/sound-barrier" element={<SoundBarrierTool />} />
             {/* 招聘专区 */}
             <Route path="jobs" element={<Jobs />} />
             <Route path="job/:id" element={<JobDetail />} />
