@@ -1,43 +1,42 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return '刚刚'
-  if (mins < 60) return `${mins}分钟前`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}小时前`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}天前`
-  return dateStr.slice(0, 10)
-}
-
 export default function PostDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [post, setPost] = useState(null)
   const [topPosts, setTopPosts] = useState([])
+  const [latestPosts, setLatestPosts] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/posts/${id}`).then(r => r.json()),
-      fetch(`/api/posts?category=${'jobs-recruit'}&type=top&pageSize=5`).then(r => r.json()).catch(() => ({ code: 200, data: { list: [] } }))
-    ]).then(([postData, topData]) => {
-      if (postData.code === 200) {
-        setPost(postData.data)
-        if (topData.code === 200) {
-          setTopPosts(topData.data.list.filter(p => p.id !== postData.data.id).slice(0, 4))
+    fetch(`/api/posts/${id}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.code === 200) {
+          setPost(d.data)
+          const categorySlug = d.data.category_slug || 'jobs-recruit'
+          Promise.all([
+            fetch(`/api/posts?category=${categorySlug}&pageSize=5`).then(r => r.json()),
+            fetch(`/api/posts?category=${categorySlug}&pageSize=20`).then(r => r.json())
+          ]).then(([topData, latestData]) => {
+            if (topData.code === 200) {
+              const allPosts = topData.data.list.filter(p => p.id !== d.data.id)
+              setTopPosts(allPosts.slice(0, 4))
+            }
+            if (latestData.code === 200) {
+              setLatestPosts(latestData.data.list.filter(p => p.id !== d.data.id).slice(0, 10))
+            }
+          })
+        } else {
+          navigate('/')
         }
-      } else {
+        setLoading(false)
+      })
+      .catch(() => {
         navigate('/')
-      }
-      setLoading(false)
-    }).catch(() => {
-      navigate('/')
-      setLoading(false)
-    })
+        setLoading(false)
+      })
   }, [id])
 
   if (loading) {
@@ -51,22 +50,31 @@ export default function PostDetail() {
   if (!post) return null
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* 顶部置顶广告/推荐 */}
+    <div className="max-w-4xl mx-auto space-y-4">
+      {/* 顶部置顶广告 */}
       {topPosts.length > 0 && (
-        <div className="mb-4">
+        <div className="bg-white rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">置顶</span>
+            <span className="text-gray-700 font-medium text-sm">优选推荐</span>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {topPosts.map(p => (
               <Link
                 key={p.id}
                 to={`/post/${p.id}`}
-                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition group"
+                className="block bg-gradient-to-br from-orange-400 to-red-500 rounded-lg overflow-hidden hover:shadow-lg transition group"
               >
-                <div className="bg-gradient-to-br from-orange-400 to-red-500 h-20 flex items-center justify-center text-white text-2xl">
+                <div className="h-16 flex items-center justify-center text-white text-2xl">
                   📢
                 </div>
-                <div className="p-2">
-                  <h4 className="text-xs text-gray-700 line-clamp-2 group-hover:text-red-500">{p.title}</h4>
+                <div className="bg-white p-2">
+                  <h4 className="text-xs text-gray-700 line-clamp-2 group-hover:text-red-500 transition">
+                    {p.title}
+                  </h4>
+                  {p.contact && (
+                    <p className="text-xs text-red-500 mt-1">📞 {p.contact.split(',')[0]}</p>
+                  )}
                 </div>
               </Link>
             ))}
@@ -75,7 +83,7 @@ export default function PostDetail() {
       )}
 
       {/* 面包屑导航 */}
-      <div className="bg-white rounded-lg px-4 py-3 mb-4 text-sm text-gray-500">
+      <div className="bg-white rounded-lg px-4 py-3 text-sm text-gray-500">
         <Link to="/" className="hover:text-red-500">首页</Link>
         <span className="mx-2">→</span>
         <Link to={`/category/${post.category_slug}`} className="hover:text-red-500">{post.category_name}</Link>
@@ -83,64 +91,65 @@ export default function PostDetail() {
         <span className="text-gray-700 line-clamp-1">{post.title}</span>
       </div>
 
+      {/* 主内容区 - 招工信息 */}
       <div className="bg-white rounded-lg overflow-hidden">
         {/* 标题区域 */}
         <div className="p-6 border-b border-gray-100">
           <h1 className="text-2xl font-bold text-gray-900 leading-tight">{post.title}</h1>
           <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
-            <span>{new Date(post.created_at).toLocaleString('zh-CN')}</span>
-            <span>浏览 {post.views} 次</span>
+            <span>📅 {new Date(post.created_at).toLocaleDateString('zh-CN')}</span>
+            <span>👁 浏览 {post.views} 次</span>
           </div>
         </div>
 
-        {/* 联系信息卡片 - 参考博陵网风格 */}
+        {/* 联系信息卡片 */}
         <div className="p-6 bg-gray-50 border-b border-gray-100">
           <div className="bg-white rounded-xl p-5 shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {post.contact && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl">
+                  <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl shrink-0">
                     📞
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-xs text-gray-400">联系电话</div>
-                    <div className="text-xl font-bold text-gray-900">{post.contact.split(',')[0].trim()}</div>
+                    <div className="text-lg font-bold text-gray-900 truncate">{post.contact.split(',')[0].trim()}</div>
                   </div>
                 </div>
               )}
               {post.location && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl">
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl shrink-0">
                     📍
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-xs text-gray-400">工作地区</div>
-                    <div className="text-lg font-medium text-gray-700">{post.location}</div>
+                    <div className="text-lg font-medium text-gray-700 truncate">{post.location}</div>
                   </div>
                 </div>
               )}
               {post.username && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
+                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl shrink-0">
                     👤
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-xs text-gray-400">发布者</div>
-                    <div className="text-lg font-medium text-gray-700">{post.username}</div>
+                    <div className="text-base font-medium text-gray-700 truncate">{post.username}</div>
                   </div>
                 </div>
               )}
-              {post.salary_min > 0 && (
+              {(post.salary_min > 0 || post.price > 0) && (
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">
+                  <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl shrink-0">
                     💰
                   </div>
-                  <div>
-                    <div className="text-xs text-gray-400">月薪待遇</div>
+                  <div className="min-w-0">
+                    <div className="text-xs text-gray-400">薪资待遇</div>
                     <div className="text-lg font-bold text-red-500">
-                      {post.salary_min > 0 && post.salary_max > 0 
-                        ? `${post.salary_min}-${post.salary_max}元` 
-                        : `${post.salary_min}元/月`}
+                      {post.salary_min > 0
+                        ? (post.salary_max > 0 ? `${post.salary_min}-${post.salary_max}元/月` : `${post.salary_min}元/月`)
+                        : (post.price > 0 ? `¥${post.price.toLocaleString()}` : '面议')}
                     </div>
                   </div>
                 </div>
@@ -151,7 +160,9 @@ export default function PostDetail() {
 
         {/* 正文内容 */}
         <div className="p-6">
-          <h3 className="text-lg font-bold text-gray-700 mb-4">📝 信息内容</h3>
+          <h3 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+            <span>📝</span> 信息内容
+          </h3>
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-base">
             {post.content || '暂无详细信息'}
           </div>
@@ -166,8 +177,53 @@ export default function PostDetail() {
         </div>
       </div>
 
+      {/* 底部最新信息 */}
+      {latestPosts.length > 0 && (
+        <div className="bg-white rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">最新</span>
+            <span className="text-gray-700 font-medium text-sm">同板块最新信息</span>
+          </div>
+          <div className="space-y-2">
+            {latestPosts.map(p => (
+              <Link
+                key={p.id}
+                to={`/post/${p.id}`}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition group"
+              >
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shrink-0">
+                  📋
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm text-gray-700 line-clamp-1 group-hover:text-red-500 transition">
+                    {p.title}
+                  </h4>
+                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                    <span>{p.location || '安平县'}</span>
+                    {p.contact && <span>📞 {p.contact.split(',')[0]}</span>}
+                  </div>
+                </div>
+                {(p.salary_min > 0 || p.price > 0) && (
+                  <div className="text-red-500 font-bold text-sm shrink-0">
+                    {p.salary_min > 0 ? `${p.salary_min}元/月` : `¥${p.price.toLocaleString()}`}
+                  </div>
+                )}
+              </Link>
+            ))}
+          </div>
+          <div className="mt-4 text-center">
+            <Link
+              to={`/category/${post.category_slug}`}
+              className="inline-block text-sm text-blue-500 hover:text-red-500 transition"
+            >
+              查看更多 {post.category_name} →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* 返回按钮 */}
-      <div className="mt-4 text-center">
+      <div className="text-center py-4">
         <button
           onClick={() => navigate(-1)}
           className="text-gray-500 hover:text-red-500 text-sm transition"
