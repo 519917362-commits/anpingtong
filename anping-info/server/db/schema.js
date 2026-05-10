@@ -121,6 +121,7 @@ const newCols = [
   ['house_support', 'TEXT DEFAULT ""'],        // 配套设施：水/电/电梯/空调
   ['house_nature', 'TEXT DEFAULT "个人"'],     // 房屋性质：个人/中介
   ['house_age', 'TEXT DEFAULT ""'],            // 建造年份
+  ['job_type', 'TEXT DEFAULT ""'],             // 岗位类型
 ]
 for (const [name, def] of newCols) {
   if (!cols.includes(name)) {
