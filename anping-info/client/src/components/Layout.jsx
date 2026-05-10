@@ -31,15 +31,10 @@ export default function Layout() {
   }
 
   const NAV_ITEMS = [
-    { name: '首页', path: '/' },
-    { name: '房屋', path: '/category/house' },
-    { name: '车辆', path: '/category/vehicle' },
-    { name: '招聘', path: '/jobs' },
-    { name: '企业', path: '/companies' },
-    { name: '拼车', path: '/category/carpool' },
-    { name: '促销', path: '/category/promotions' },
-    { name: '工具', path: '/tools' },
-    { name: '公告', path: '/notices' },
+    { name: '首页', path: '/', icon: '🏠' },
+    { name: '分类', path: '/categories', icon: '📑' },
+    { name: '资讯', path: '/notices', icon: '📰' },
+    { name: '我的', path: user ? '/my-posts' : '/login', icon: '👤' },
   ]
 
   return (
@@ -118,7 +113,7 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* 导航分类 - 桌面端 */}
+        {/* 导航分类 - 桌面端顶部导航 */}
         <nav className="border-t border-gray-100 hidden md:block">
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex gap-1 text-sm">
@@ -140,10 +135,30 @@ export default function Layout() {
         </nav>
       </header>
 
-      {/* 主内容 */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4">
+      {/* 主内容 - 移动端预留底部导航空间 */}
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 mb-16 md:mb-0">
         <Outlet />
       </main>
+
+      {/* 移动端底部导航 */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="flex justify-around items-center h-14">
+          {NAV_ITEMS.map(item => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition ${
+                location.pathname === item.path
+                  ? 'text-blue-500'
+                  : 'text-gray-400'
+              }`}
+            >
+              <span className="text-xl mb-0.5">{item.icon}</span>
+              <span className="text-xs">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
 
       {/* 页脚 */}
       <footer className="bg-gray-800 text-gray-400 text-xs mt-8 pb-20 md:pb-8">
