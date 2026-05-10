@@ -111,6 +111,16 @@ const newCols = [
   ['seats_available', 'INTEGER DEFAULT 0'],   // 拼车剩余座位
   ['original_price', 'REAL DEFAULT 0'],        // 促销原价
   ['valid_until', 'TEXT DEFAULT ""'],          // 促销有效期
+  // 房产专用字段
+  ['house_type', 'TEXT DEFAULT ""'],           // 房屋类型：住宅/商铺/厂房/土地
+  ['house_area', 'REAL DEFAULT 0'],            // 面积（平方米）
+  ['house_layout', 'TEXT DEFAULT ""'],         // 户型：几室几厅
+  ['house_floor', 'TEXT DEFAULT ""'],          // 楼层：如 "5/18层"
+  ['house_direction', 'TEXT DEFAULT ""'],      // 朝向：南北/东西
+  ['house_decoration', 'TEXT DEFAULT ""'],     // 装修：毛坯/简装/精装
+  ['house_support', 'TEXT DEFAULT ""'],        // 配套设施：水/电/电梯/空调
+  ['house_nature', 'TEXT DEFAULT "个人"'],     // 房屋性质：个人/中介
+  ['house_age', 'TEXT DEFAULT ""'],            // 建造年份
 ]
 for (const [name, def] of newCols) {
   if (!cols.includes(name)) {

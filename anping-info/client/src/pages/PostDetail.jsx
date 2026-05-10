@@ -220,6 +220,154 @@ export default function PostDetail() {
           </div>
         )}
 
+        {/* 房产结构化信息卡片 */}
+        {post.category_slug === 'house' && (
+          <div className="p-6 bg-gray-50 border-b border-gray-100">
+            <div className="bg-white rounded-xl p-5 shadow-sm">
+              <h3 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">
+                <span>🏠</span> 房源信息
+              </h3>
+
+              {/* 价格 - 大字突出 */}
+              {post.price > 0 && (
+                <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-red-600 rounded-full flex items-center justify-center text-white text-2xl">
+                    💰
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">
+                      {post.title?.includes('租') ? '月租金' : '售价'}
+                    </div>
+                    <div className="text-2xl font-bold text-red-500">
+                      {post.title?.includes('租') 
+                        ? `${Number(post.price).toLocaleString()}元/月`
+                        : `${Number(post.price).toLocaleString()}万元`}
+                    </div>
+                    {post.house_area > 0 && (
+                      <div className="text-xs text-gray-400 mt-1">
+                        约 {Math.round(post.price * 10000 / post.house_area)}元/㎡
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 结构化信息网格 */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {post.house_area > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shrink-0">
+                      📐
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">建筑面积</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_area}㎡</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_layout && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 shrink-0">
+                      🏠
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">户型结构</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_layout}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_floor && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 shrink-0">
+                      🏢
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">所在楼层</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_floor}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_direction && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-500 shrink-0">
+                      🧭
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">房屋朝向</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_direction}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_decoration && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 shrink-0">
+                      ✨
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">装修情况</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_decoration}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_age && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center text-cyan-500 shrink-0">
+                      📅
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">建造年份</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_age}年</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.house_nature && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 shrink-0">
+                      🏷️
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">房屋性质</div>
+                      <div className="text-sm font-medium text-gray-700">{post.house_nature}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.location && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-500 shrink-0">
+                      📍
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">所在区域</div>
+                      <div className="text-sm font-medium text-gray-700">{post.location}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 配套设施标签 */}
+              {post.house_support && (
+                <div className="mt-5 pt-5 border-t border-gray-100">
+                  <div className="text-xs text-gray-400 mb-2">配套设施</div>
+                  <div className="flex flex-wrap gap-2">
+                    {post.house_support.split(/[,，、]/).filter(s => s.trim()).map((support, i) => (
+                      <span key={i} className="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full text-sm">
+                        ✓ {support.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 联系信息 */}
         {post.contact && (
           <div className="p-6 bg-gray-50 border-b border-gray-100">
