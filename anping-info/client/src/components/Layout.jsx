@@ -34,6 +34,7 @@ export default function Layout() {
     { name: '首页', path: '/', icon: '🏠' },
     { name: '丝网产业', path: '/tools/wiremesh', icon: '🕸️' },
     { name: '分类资讯', path: '/categories', icon: '📑' },
+    { name: '安平黄页', path: '/yellow-pages', icon: '📖' },
     { name: '我的', path: user ? '/my-posts' : '/login', icon: '👤' },
   ]
 

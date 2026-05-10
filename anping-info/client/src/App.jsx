@@ -21,6 +21,7 @@ import Notices from './pages/Notices'
 import NoticeDetail from './pages/NoticeDetail'
 import StaticPage from './pages/StaticPage'
 import AllCategories from './pages/AllCategories'
+import YellowPages from './pages/YellowPages'
 
 export default function App() {
   return (
@@ -53,6 +54,8 @@ export default function App() {
             <Route path="notice/:id" element={<NoticeDetail />} />
             {/* 静态页面 */}
             <Route path="page/:slug" element={<StaticPage />} />
+            {/* 安平黄页 */}
+            <Route path="yellow-pages" element={<YellowPages />} />
           </Route>
         </Routes>
       </AuthProvider>
