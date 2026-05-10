@@ -3,16 +3,14 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 const PROPERTY_TYPES = [
   { id: 'all', name: '全部', icon: '🏠' },
-  { id: 'rent', name: '租房', icon: '🔑' },
-  { id: 'sale', name: '二手房', icon: '🏡' },
-  { id: 'new', name: '新房', icon: '🌟' },
-  { id: 'shop', name: '商铺', icon: '🏪' },
-  { id: 'business', name: '生意转让', icon: '💼' },
-  { id: 'office', name: '写字楼', icon: '🏢' },
-  { id: 'factory', name: '厂房', icon: '🏭' },
-  { id: 'warehouse', name: '仓库', icon: '📦' },
-  { id: 'land', name: '土地', icon: '🌍' },
-  { id: 'parking', name: '车位', icon: '🅿️' },
+  { id: 'factory-rent', name: '厂房出租', icon: '🏭' },
+  { id: 'residence-sale', name: '住宅出售', icon: '🏡' },
+  { id: 'residence-rent', name: '住宅出租', icon: '🔑' },
+  { id: 'factory-want', name: '厂房求租', icon: '📋' },
+  { id: 'land-sale', name: '土地转让', icon: '🌍' },
+  { id: 'house-want', name: '求购住房', icon: '💡' },
+  { id: 'shop-rent', name: '店铺出租', icon: '🏪' },
+  { id: 'shop-transfer', name: '店铺转让', icon: '🔄' },
 ]
 
 const AREAS = [
@@ -147,24 +145,76 @@ export default function CityHouse() {
         { id: 40002, title: '求租900-1000平城西厂房', location: '城西', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-05-05' },
         { id: 40003, title: '求租900-1000平独门独院', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-05-05' },
         { id: 40004, title: '求租厂房350-400平带小院', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-04-21' },
+        // 土地出售 fid=15
+        { id: 50001, title: '滤材城附近土地出售两亩', location: '滤材城', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-09' },
+        { id: 50002, title: '安平北外环新征土地出售6亩', location: '北外环', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-09' },
+        { id: 50003, title: '北外环附近土地14亩出售', location: '北外环', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-08' },
+        { id: 50004, title: '饶阳工业园区厂房带土地8亩', location: '饶阳', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-08' },
+        { id: 50005, title: '南外环附近土地1300平', location: '南外环', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-08' },
+        { id: 50006, title: '北外环路东土地九亩有手续', location: '北外环', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-07' },
+        { id: 50007, title: '东外环600平场地出租', location: '东外环', price: 0, category_slug: 'house', category_name: '场地出租', created_at: '2026-05-07' },
+        { id: 50008, title: '聚成物流附近场地出租2000平', location: '聚成物流', price: 0, category_slug: 'house', category_name: '场地出租', created_at: '2026-05-07' },
+        { id: 50009, title: '郭西工业用地转让', location: '郭西', price: 0, category_slug: 'house', category_name: '土地转让', created_at: '2026-05-06' },
+        { id: 50010, title: '土地出售3000平价格便宜', location: '安平县', price: 0, category_slug: 'house', category_name: '土地出售', created_at: '2026-05-06' },
+        // 二手房求购 fid=16
+        { id: 60001, title: '求购一套80平左右住房', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-09' },
+        { id: 60002, title: '求购一套100平左右电梯房两居室', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-09' },
+        { id: 60003, title: '求购上东一号小区四室住房', location: '上东一号', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-08' },
+        { id: 60004, title: '求购三居室要求有证可贷款', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-08' },
+        { id: 60005, title: '求购三室或四室100-130平', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-07' },
+        { id: 60006, title: '诚心求购三室步梯2-3楼', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-07' },
+        { id: 60007, title: '全款求购100平左右两居室', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-06' },
+        { id: 60008, title: '求购金色阳光三室或四室', location: '金色阳光', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-06' },
+        { id: 60009, title: '求购150平左右大户型', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-05' },
+        { id: 60010, title: '求购90-120平电梯房可全款', location: '安平县', price: 0, category_slug: 'house', category_name: '求购住房', created_at: '2026-05-05' },
+        // 门店出租/转让 fid=17
+        { id: 70001, title: '转让红旗街女装店130平', location: '红旗街', price: 0, category_slug: 'shop-transfer', category_name: '店铺转让', created_at: '2026-05-10' },
+        { id: 70002, title: '临街平房店铺出租', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-10' },
+        { id: 70003, title: '门店出租出售210平上下两层', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-10' },
+        { id: 70004, title: '北外环门店出租120平', location: '北外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-10' },
+        { id: 70005, title: '安平县北外环独栋门店出售', location: '北外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出售', created_at: '2026-05-10' },
+        { id: 70006, title: '中心路南段店铺转让', location: '中心路', price: 0, category_slug: 'shop-transfer', category_name: '店铺转让', created_at: '2026-05-09' },
+        { id: 70007, title: '东外环门店出租80平', location: '东外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-09' },
+        { id: 70008, title: '西外环门店出租120平', location: '西外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-09' },
+        { id: 70009, title: '新盈街西段门店出租', location: '新盈街', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-09' },
+        { id: 70010, title: '门店出租50平适合各种行业', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-09' },
+        { id: 70011, title: '饭店转让138平带设备', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-09' },
+        { id: 70012, title: '丝网产业带商铺出售', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '店铺出售', created_at: '2026-05-09' },
+        { id: 70013, title: '足疗店转让180平', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-08' },
+        { id: 70014, title: '洗车店低价转让', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-08' },
+        { id: 70015, title: '南外环门脸房出租110平', location: '南外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-08' },
+        { id: 70016, title: '裕华路门店转让70平', location: '裕华路', price: 0, category_slug: 'shop-transfer', category_name: '店铺转让', created_at: '2026-05-08' },
+        { id: 70017, title: '转让正在营业中台球厅', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-07' },
+        { id: 70018, title: '安平镇土地及门店出售', location: '安平镇', price: 0, category_slug: 'shop-transfer', category_name: '店铺出售', created_at: '2026-05-07' },
+        { id: 70019, title: '台城附近洗车店转让', location: '台城', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-07' },
+        { id: 70020, title: '汉堡店带技术转让', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-07' },
+        { id: 70021, title: '南胡林村口门店出租80平', location: '南胡林', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-06' },
+        { id: 70022, title: '火锅店转让260平上下两层', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-06' },
+        { id: 70023, title: '转让营业中水果店', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-06' },
+        { id: 70024, title: '营业中文具店转让', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-06' },
+        { id: 70025, title: '转让南王宋学校旁门店', location: '南王宋', price: 0, category_slug: 'shop-transfer', category_name: '店铺转让', created_at: '2026-05-05' },
+        { id: 70026, title: '中心路门店出租60平', location: '中心路', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-05' },
+        { id: 70027, title: '安平县KTV转让', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-05' },
+        { id: 70028, title: '转让营业中文具店60平', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-05' },
+        { id: 70029, title: '南外环路门店出租上下三层', location: '南外环', price: 0, category_slug: 'shop-transfer', category_name: '店铺出租', created_at: '2026-05-04' },
+        { id: 70030, title: '转让营业中快递驿站', location: '安平县', price: 0, category_slug: 'shop-transfer', category_name: '生意转让', created_at: '2026-05-04' },
+        { id: 70031, title: '南关大街门店转让上下两层', location: '南关大街', price: 0, category_slug: 'shop-transfer', category_name: '店铺转让', created_at: '2026-05-04' },
       ]
       
       allPosts = [...allPosts, ...propertyData]
       
       if (currentType !== 'all') {
         allPosts = allPosts.filter(post => {
-          const title = (post.title || '').toLowerCase()
+          const categoryName = (post.category_name || '').toLowerCase()
           switch(currentType) {
-            case 'rent': return title.includes('租') || title.includes('出租')
-            case 'sale': return title.includes('售') || title.includes('出售') || title.includes('二手房')
-            case 'new': return title.includes('新房') || title.includes('开盘')
-            case 'shop': return title.includes('商铺') || title.includes('门店')
-            case 'business': return title.includes('转让') || title.includes('生意')
-            case 'office': return title.includes('写字楼') || title.includes('办公')
-            case 'factory': return title.includes('厂房')
-            case 'warehouse': return title.includes('仓库')
-            case 'land': return title.includes('土地')
-            case 'parking': return title.includes('车位') || title.includes('停车')
+            case 'factory-rent': return categoryName.includes('厂房出租') || categoryName.includes('场地出租')
+            case 'residence-sale': return categoryName.includes('住宅出售')
+            case 'residence-rent': return categoryName.includes('住宅出租')
+            case 'factory-want': return categoryName.includes('厂房求租')
+            case 'land-sale': return categoryName.includes('土地出售') || categoryName.includes('土地转让')
+            case 'house-want': return categoryName.includes('求购住房')
+            case 'shop-rent': return categoryName.includes('店铺出租') || categoryName.includes('门店出租')
+            case 'shop-transfer': return categoryName.includes('店铺转让') || categoryName.includes('店铺出售') || categoryName.includes('生意转让')
             default: return true
           }
         })
@@ -239,32 +289,25 @@ export default function CityHouse() {
     setSearchKeyword('')
   }
 
-  const getPropertyType = (title) => {
-    const t = title.toLowerCase()
-    if (t.includes('租') || t.includes('出租')) return '租房'
-    if (t.includes('商铺') || t.includes('门店')) return '商铺'
-    if (t.includes('转让') || t.includes('生意')) return '生意转让'
-    if (t.includes('写字楼') || t.includes('办公')) return '写字楼'
-    if (t.includes('厂房')) return '厂房'
-    if (t.includes('仓库')) return '仓库'
-    if (t.includes('土地')) return '土地'
-    if (t.includes('车位') || t.includes('停车')) return '车位'
-    if (t.includes('售') || t.includes('二手房')) return '二手房'
-    return '房屋'
+  const getPropertyType = (post) => {
+    return post.category_name || '房产'
   }
 
   const getPropertyTypeColor = (type) => {
     const colors = {
-      '租房': 'bg-blue-100 text-blue-600',
-      '二手房': 'bg-green-100 text-green-600',
-      '商铺': 'bg-orange-100 text-orange-600',
-      '生意转让': 'bg-purple-100 text-purple-600',
-      '写字楼': 'bg-indigo-100 text-indigo-600',
-      '厂房': 'bg-gray-100 text-gray-600',
-      '仓库': 'bg-amber-100 text-amber-600',
-      '土地': 'bg-lime-100 text-lime-600',
-      '车位': 'bg-cyan-100 text-cyan-600',
-      '房屋': 'bg-pink-100 text-pink-600',
+      '厂房出租': 'bg-orange-100 text-orange-600',
+      '场地出租': 'bg-orange-100 text-orange-600',
+      '住宅出售': 'bg-green-100 text-green-600',
+      '住宅出租': 'bg-blue-100 text-blue-600',
+      '厂房求租': 'bg-amber-100 text-amber-600',
+      '土地出售': 'bg-lime-100 text-lime-600',
+      '土地转让': 'bg-lime-100 text-lime-600',
+      '求购住房': 'bg-purple-100 text-purple-600',
+      '店铺出租': 'bg-pink-100 text-pink-600',
+      '门店出租': 'bg-pink-100 text-pink-600',
+      '店铺转让': 'bg-rose-100 text-rose-600',
+      '店铺出售': 'bg-rose-100 text-rose-600',
+      '生意转让': 'bg-indigo-100 text-indigo-600',
     }
     return colors[type] || 'bg-gray-100 text-gray-600'
   }
@@ -444,14 +487,14 @@ export default function CityHouse() {
                   <h3 className="text-sm font-medium text-gray-800 line-clamp-2 flex-1">
                     {post.title}
                   </h3>
-                  <span className={`px-1.5 py-0.5 rounded text-xs ${getPropertyTypeColor(getPropertyType(post.title))}`}>
-                    {getPropertyType(post.title)}
+                  <span className={`px-1.5 py-0.5 rounded text-xs ${getPropertyTypeColor(getPropertyType(post))}`}>
+                    {getPropertyType(post)}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mb-1">{post.location || '安平县'}</p>
                 <div className="flex items-center justify-between">
                   <div className="text-red-500 font-bold text-sm">
-                    {formatPrice(post.price, getPropertyType(post.title).includes('租') ? 'rent' : 'sale')}
+                    {formatPrice(post.price, post.category_name?.includes('出租') || post.category_name?.includes('租') ? 'rent' : 'sale')}
                   </div>
                   <div className="text-xs text-gray-400">{timeAgo(post.created_at)}</div>
                 </div>
