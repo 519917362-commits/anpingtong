@@ -6,6 +6,7 @@ export default function PostDetail() {
   const navigate = useNavigate()
   const [post, setPost] = useState(null)
   const [relatedPosts, setRelatedPosts] = useState([])
+  const [userPosts, setUserPosts] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -15,13 +16,17 @@ export default function PostDetail() {
         if (d.code === 200) {
           setPost(d.data)
           const categorySlug = d.data.category_slug || 'jobs-recruit'
-          fetch(`/api/posts?category=${categorySlug}&pageSize=24`)
-            .then(r => r.json())
-            .then(latestData => {
-              if (latestData.code === 200) {
-                setRelatedPosts(latestData.data.list.filter(p => p.id !== d.data.id).slice(0, 10))
-              }
-            })
+          Promise.all([
+            fetch(`/api/posts?category=${categorySlug}&pageSize=24`).then(r => r.json()),
+            fetch(`/api/posts/user/${d.data.user_id}?exclude=${d.data.id}&pageSize=10`).then(r => r.json()).catch(() => ({ code: 200, data: { list: [] } }))
+          ]).then(([relatedData, userData]) => {
+            if (relatedData.code === 200) {
+              setRelatedPosts(relatedData.data.list.filter(p => p.id !== d.data.id).slice(0, 10))
+            }
+            if (userData.code === 200) {
+              setUserPosts(userData.data.list)
+            }
+          })
         } else {
           navigate('/')
         }
@@ -45,6 +50,8 @@ export default function PostDetail() {
 
   const topPosts = relatedPosts.slice(0, 4)
   const bottomPosts = relatedPosts.slice(4, 10)
+
+  const hasStructuredInfo = post.salary_min > 0 || post.salary_max > 0 || post.company_name || post.work_address || post.recruit_count || post.benefits
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
@@ -104,112 +111,189 @@ export default function PostDetail() {
           </div>
         </div>
 
-        {/* 招聘结构化信息 */}
-        <div className="p-6 bg-gray-50 border-b border-gray-100">
-          <div className="bg-white rounded-xl p-5 shadow-sm">
-            {/* 薪资 - 大字突出 */}
-            {(post.salary_min > 0 || post.salary_max > 0) && (
-              <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-                <div className="w-14 h-14 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center text-white text-2xl">
-                  💰
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400">月薪待遇</div>
-                  <div className="text-2xl font-bold text-red-500">
-                    {post.salary_min > 0 && post.salary_max > 0 
-                      ? `${post.salary_min}-${post.salary_max}元/月` 
-                      : post.salary_min > 0 
-                        ? `${post.salary_min}元/月`
-                        : `${post.salary_max}元/月`}
+        {/* 招聘结构化信息卡片 */}
+        {post.category_slug === 'jobs-recruit' && (
+          <div className="p-6 bg-gray-50 border-b border-gray-100">
+            <div className="bg-white rounded-xl p-5 shadow-sm">
+              <h3 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">
+                <span>📋</span> 职位信息
+              </h3>
+
+              {/* 薪资 - 大字突出 */}
+              {(post.salary_min > 0 || post.salary_max > 0) && (
+                <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center text-white text-2xl">
+                    💰
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-400">月薪待遇</div>
+                    <div className="text-2xl font-bold text-red-500">
+                      {post.salary_min > 0 && post.salary_max > 0 
+                        ? `${post.salary_min}-${post.salary_max}元/月` 
+                        : post.salary_min > 0 
+                          ? `${post.salary_min}元/月`
+                          : post.salary_max > 0 
+                            ? `${post.salary_max}元/月`
+                            : '面议'}
+                    </div>
                   </div>
                 </div>
+              )}
+
+              {/* 结构化信息网格 */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {post.work_address && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 shrink-0">
+                      📍
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">工作地区</div>
+                      <div className="text-sm font-medium text-gray-700">{post.work_address}</div>
+                    </div>
+                  </div>
+                )}
+                
+                {post.company_name && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 shrink-0">
+                      🏢
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">公司名称</div>
+                      <div className="text-sm font-medium text-gray-700">{post.company_name}</div>
+                    </div>
+                  </div>
+                )}
+                
+                {post.recruit_count && post.recruit_count > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 shrink-0">
+                      👥
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">招聘人数</div>
+                      <div className="text-sm font-medium text-gray-700">{post.recruit_count}人</div>
+                    </div>
+                  </div>
+                )}
+                
+                {post.job_nature && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center text-cyan-500 shrink-0">
+                      💼
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">工作性质</div>
+                      <div className="text-sm font-medium text-gray-700">{post.job_nature}</div>
+                    </div>
+                  </div>
+                )}
+
+                {post.location && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 shrink-0">
+                      🗺
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs text-gray-400">所属区域</div>
+                      <div className="text-sm font-medium text-gray-700">{post.location}</div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* 结构化信息网格 */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {post.contact && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shrink-0">
-                    📞
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">联系电话</div>
-                    <div className="text-base font-bold text-gray-900 truncate">{post.contact.split(',')[0].trim()}</div>
-                  </div>
-                </div>
-              )}
-              
-              {post.work_address && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 shrink-0">
-                    📍
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">工作地址</div>
-                    <div className="text-base font-medium text-gray-700 truncate">{post.work_address}</div>
-                  </div>
-                </div>
-              )}
-              
-              {post.company_name && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 shrink-0">
-                    🏢
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">公司名称</div>
-                    <div className="text-base font-medium text-gray-700 truncate">{post.company_name}</div>
-                  </div>
-                </div>
-              )}
-              
-              {post.recruit_count && post.recruit_count > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-500 shrink-0">
-                    👥
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">招聘人数</div>
-                    <div className="text-base font-medium text-gray-700">{post.recruit_count}人</div>
-                  </div>
-                </div>
-              )}
-              
-              {post.job_nature && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center text-cyan-500 shrink-0">
-                    💼
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">工作性质</div>
-                    <div className="text-base font-medium text-gray-700">{post.job_nature}</div>
-                  </div>
-                </div>
-              )}
-
-              {post.location && (
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-500 shrink-0">
-                    🗺
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs text-gray-400">所属区域</div>
-                    <div className="text-base font-medium text-gray-700">{post.location}</div>
+              {/* 公司福利标签 */}
+              {post.benefits && (
+                <div className="mt-5 pt-5 border-t border-gray-100">
+                  <div className="text-xs text-gray-400 mb-2">公司福利</div>
+                  <div className="flex flex-wrap gap-2">
+                    {post.benefits.split(/[,，、]/).filter(b => b.trim()).map((benefit, i) => (
+                      <span key={i} className="bg-green-50 text-green-600 border border-green-200 px-3 py-1 rounded-full text-sm">
+                        ✓ {benefit.trim()}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
+          </div>
+        )}
 
-            {/* 公司福利标签 */}
-            {post.benefits && (
-              <div className="mt-5 pt-5 border-t border-gray-100">
-                <div className="text-xs text-gray-400 mb-2">公司福利</div>
-                <div className="flex flex-wrap gap-2">
-                  {post.benefits.split(/[,，、]/).filter(b => b.trim()).map((benefit, i) => (
-                    <span key={i} className="bg-green-50 text-green-600 border border-green-200 px-3 py-1 rounded-full text-sm">
-                      ✓ {benefit.trim()}
-                    </span>
+        {/* 联系信息 */}
+        {post.contact && (
+          <div className="p-6 bg-gray-50 border-b border-gray-100">
+            <div className="bg-white rounded-xl p-5 shadow-sm">
+              <h3 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">
+                <span>📞</span> 联系方式
+              </h3>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-400">联系电话</div>
+                  <div className="text-xl font-bold text-gray-900">{post.contact.split(',')[0].trim()}</div>
+                </div>
+                <a 
+                  href={`tel:${post.contact.split(',')[0].trim()}`}
+                  className="bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition flex items-center gap-2"
+                >
+                  📞 立即拨打
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 发布人信息 */}
+        <div className="p-6 border-b border-gray-100">
+          <div className="bg-gray-50 rounded-xl p-5">
+            <h3 className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">
+              <span>👤</span> 发布人信息
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-2xl overflow-hidden">
+                {post.user_avatar ? (
+                  <img src={post.user_avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">👤</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-gray-800">{post.username || '平台用户'}</div>
+                <div className="text-sm text-gray-500 mt-1">
+                  发布于 {new Date(post.created_at).toLocaleDateString('zh-CN')}
+                </div>
+              </div>
+              {userPosts.length > 0 && (
+                <div className="text-sm text-blue-500">
+                  共发布 {userPosts.length} 条信息
+                </div>
+              )}
+            </div>
+
+            {/* 发布人的其他帖子 */}
+            {userPosts.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="text-sm font-medium text-gray-700 mb-2">该发布人其他信息：</div>
+                <div className="space-y-2">
+                  {userPosts.slice(0, 5).map(p => (
+                    <Link
+                      key={p.id}
+                      to={`/post/${p.id}`}
+                      className="flex items-center gap-3 p-2 bg-white rounded-lg hover:bg-gray-50 transition"
+                    >
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 shrink-0">
+                        📋
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-gray-700 line-clamp-1">{p.title}</div>
+                        <div className="text-xs text-gray-400">{p.category_name} · {new Date(p.created_at).toLocaleDateString('zh-CN')}</div>
+                      </div>
+                      {(p.salary_min > 0 || p.salary_max > 0) && (
+                        <div className="text-red-500 text-sm font-bold shrink-0">
+                          {p.salary_min > 0 ? `${p.salary_min}元/月` : ''}
+                        </div>
+                      )}
+                    </Link>
                   ))}
                 </div>
               </div>

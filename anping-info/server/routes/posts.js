@@ -81,7 +81,8 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   try {
     const post = db.prepare(`
-      SELECT p.*, u.username, c.name as category_name, c.slug as category_slug, c.icon as category_icon
+      SELECT p.*, u.username, u.avatar as user_avatar, u.phone as user_phone,
+             c.name as category_name, c.slug as category_slug, c.icon as category_icon
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.id
       LEFT JOIN categories c ON p.category_id = c.id
@@ -90,11 +91,48 @@ router.get('/:id', (req, res) => {
 
     if (!post) return res.json({ code: 404, message: '帖子不存在' })
 
-    // 浏览量+1
     db.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').run(req.params.id)
     post.views += 1
 
     res.json({ code: 200, data: post })
+  } catch (err) {
+    res.json({ code: 500, message: '服务器错误' })
+  }
+})
+
+// 获取用户发布的帖子
+router.get('/user/:userId', (req, res) => {
+  try {
+    const { page = 1, pageSize = 10, exclude } = req.query
+    const offset = (page - 1) * pageSize
+
+    let sql = `
+      SELECT p.id, p.title, p.contact, p.location, p.salary_min, p.salary_max, p.created_at,
+             c.name as category_name, c.slug as category_slug
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.user_id = ? AND p.status = 'approved'
+    `
+    const params = [req.params.userId]
+
+    if (exclude) {
+      sql += ' AND p.id != ?'
+      params.push(exclude)
+    }
+
+    const total = db.prepare(`SELECT COUNT(*) as cnt FROM (${sql})`).get(...params)
+    sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?'
+    params.push(Number(pageSize), Number(offset))
+
+    const posts = db.prepare(sql).all(...params)
+
+    res.json({
+      code: 200,
+      data: {
+        list: posts,
+        total: total.cnt
+      }
+    })
   } catch (err) {
     res.json({ code: 500, message: '服务器错误' })
   }
