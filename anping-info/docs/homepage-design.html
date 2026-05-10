@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安平同城网 - 首页设计稿</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* 顶部搜索栏 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 30px;
+            display: flex;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 24px 0 0 24px;
+            font-size: 14px;
+        }
+        .search-bar button {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 0 24px 24px 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .header-btn {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* 分类导航 */
+        .nav-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-item:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        .nav-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: white;
+        }
+        .nav-item span {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+        .nav-item.highlight {
+            border: 2px solid #ff4757;
+            background: #fff5f5;
+        }
+
+        /* 全站置顶 */
+        .top-banner {
+            margin: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .banner-header {
+            background: rgba(255,255,255,0.2);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .banner-header strong {
+            font-size: 16px;
+        }
+        .banner-header a {
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .banner-content {
+            height: 120px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .banner-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="rgba(255,255,255,0.1)" x="10" y="10" width="20" height="20" rx="5"/><rect fill="rgba(255,255,255,0.05)" x="40" y="30" width="30" height="30" rx="5"/><rect fill="rgba(255,255,255,0.1)" x="70" y="60" width="25" height="25" rx="5"/></svg>');
+            background-size: 100px;
+        }
+        .banner-text {
+            color: white;
+            text-align: center;
+            z-index: 1;
+        }
+        .banner-text h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .banner-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 内容区域 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .card-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            color: #333;
+        }
+        .card-header a {
+            color: #999;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .card-list {
+            padding: 10px 0;
+        }
+        .card-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .card-item:hover {
+            background: #f8f9fa;
+        }
+        .card-rank {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 12px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .card-rank.top {
+            background: #ff4757;
+            color: white;
+        }
+        .card-info {
+            flex: 1;
+        }
+        .card-info h4 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+            font-weight: normal;
+        }
+        .card-info p {
+            font-size: 12px;
+            color: #999;
+        }
+        .card-price {
+            color: #ff4757;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* 底部 */
+        .footer {
+            background: #2d3436;
+            color: #fff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .footer-links {
+            margin-bottom: 15px;
+        }
+        .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .footer p {
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部搜索栏 -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">🏠 安平同城</div>
+                <div class="search-bar">
+                    <input type="text" placeholder="找工作、找房子、二手物品...">
+                    <button>搜索</button>
+                </div>
+                <a href="#" class="header-btn">+ 免费发布</a>
+            </div>
+        </div>
+
+        <!-- 分类导航 -->
+        <div class="nav-section">
+            <div class="nav-grid">
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💼</div>
+                    <span>招聘求职</span>
+                </a>
+                <a href="#" class="nav-item highlight">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🏠</div>
+                    <span>房屋租售</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🚗</div>
+                    <span>二手车</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">🔄</div>
+                    <span>二手闲置</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">♻️</div>
+                    <span>二手回收</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">🧹</div>
+                    <span>家政服务</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">💼</div>
+                    <span>商务服务</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 全站置顶广告 -->
+        <div class="top-banner">
+            <div class="banner-header">
+                <span>🔝 <strong>全站置顶</strong></span>
+                <a href="#">查看全部 →</a>
+            </div>
+            <div class="banner-content">
+                <div class="banner-text">
+                    <h3>🏠 安平同城网 - 精选推荐</h3>
+                    <p>覆盖招聘、房产、二手车等全品类信息</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容卡片 -->
+        <div class="content-grid">
+            <!-- 招聘求职 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>💼 招聘求职</h3>
+                    <a href="#">更多 →</a>
+                </div>
+                <div class="card-list">
+                    <a href="#" class="card-item">
+                        <div class="card-rank top">1</div>
+                        <div class="card-info">
+                            <h4>高薪诚聘销售经理，月薪8000-15000</h4>
+                            <p>安平县 · 销售</p>
+                        </div>
+                        <div class="card-price">8000+/月</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank top">2</div>
+                        <div class="card-info">
+                            <h4>丝网厂招聘操作工，包吃住</h4>
+                            <p>工业园区 · 工人</p>
+                        </div>
+                        <div class="card-price">5000+/月</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">3</div>
+                        <div class="card-info">
+                            <h4>诚聘客服专员，待遇优厚</h4>
+                            <p>县城 · 客服</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">4</div>
+                        <div class="card-info">
+                            <h4>招聘司机，C本即可</h4>
+                            <p>城东 · 司机</p>
+                        </div>
+                        <div class="card-price">4500/月</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">5</div>
+                        <div class="card-info">
+                            <h4>县城火锅店招聘服务员</h4>
+                            <p>县城 · 服务员</p>
+                        </div>
+                        <div class="card-price">3000/月</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 房屋租售 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🏠 房屋租售</h3>
+                    <a href="#">更多 →</a>
+                </div>
+                <div class="card-list">
+                    <a href="#" class="card-item">
+                        <div class="card-rank top">🔥</div>
+                        <div class="card-info">
+                            <h4>凯旋城 128平 精装修 三室两厅</h4>
+                            <p>凯旋城 · 123㎡ · 精装</p>
+                        </div>
+                        <div class="card-price">85万</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">2</div>
+                        <div class="card-info">
+                            <h4>出租 厂房 1000平米 城东工业园</h4>
+                            <p>城东工业园 · 1000㎡</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">3</div>
+                        <div class="card-info">
+                            <h4>出售 住宅楼 85平米 两室一厅</h4>
+                            <p>县城 · 85㎡</p>
+                        </div>
+                        <div class="card-price">38万</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">4</div>
+                        <div class="card-info">
+                            <h4>出租 商铺 60平米 中心街</h4>
+                            <p>中心街 · 60㎡</p>
+                        </div>
+                        <div class="card-price">2000/月</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">5</div>
+                        <div class="card-info">
+                            <h4>出租 名门印象 精装三室</h4>
+                            <p>盛世名门 · 120㎡</p>
+                        </div>
+                        <div class="card-price">1500/月</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 招商转让 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🏪 招商转让</h3>
+                    <a href="#">更多 →</a>
+                </div>
+                <div class="card-list">
+                    <a href="#" class="card-item">
+                        <div class="card-rank top">1</div>
+                        <div class="card-info">
+                            <h4>中心街旺铺转让，客源稳定</h4>
+                            <p>县城 · 商铺转让</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">2</div>
+                        <div class="card-info">
+                            <h4>火锅店整体转让，设备齐全</h4>
+                            <p>县城 · 生意转让</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">3</div>
+                        <div class="card-info">
+                            <h4>工业园厂房出租，证件齐全</h4>
+                            <p>工业园 · 厂房</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">4</div>
+                        <div class="card-info">
+                            <h4>低价转让汽车装饰店</h4>
+                            <p>县城 · 生意转让</p>
+                        </div>
+                        <div class="card-price">面议</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 二手车 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🚗 二手车</h3>
+                    <a href="#">更多 →</a>
+                </div>
+                <div class="card-list">
+                    <a href="#" class="card-item">
+                        <div class="card-rank top">1</div>
+                        <div class="card-info">
+                            <h4>大众帕萨特 2019款 自动挡</h4>
+                            <p>个人 · 行驶5万公里</p>
+                        </div>
+                        <div class="card-price">12万</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">2</div>
+                        <div class="card-info">
+                            <h4>五菱宏光 2020年 准新车</h4>
+                            <p>个人 · 行驶3万公里</p>
+                        </div>
+                        <div class="card-price">4.5万</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">3</div>
+                        <div class="card-info">
+                            <h4>本田CR-V 2021款 四驱</h4>
+                            <p>个人 · 行驶2万公里</p>
+                        </div>
+                        <div class="card-price">18万</div>
+                    </a>
+                    <a href="#" class="card-item">
+                        <div class="card-rank">4</div>
+                        <div class="card-info">
+                            <h4>长安逸动 2018年 自动挡</h4>
+                            <p>个人 · 行驶6万公里</p>
+                        </div>
+                        <div class="card-price">3.8万</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="#">关于我们</a>
+                <a href="#">联系我们</a>
+                <a href="#">商家入驻</a>
+                <a href="#">广告服务</a>
+                <a href="#">站点地图</a>
+            </div>
+            <p>© 2024 安平同城网 版权所有 | 安平县本地分类信息平台</p>
+        </div>
+    </div>
+</body>
+</html>
