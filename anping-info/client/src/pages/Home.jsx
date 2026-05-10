@@ -264,6 +264,59 @@ export default function Home() {
         </div>
       </div>
 
+      {/* 全站置顶条幅广告 */}
+      {!loading && topPosts.length > 0 && (
+        <div className="space-y-3">
+          {topPosts.slice(0, 2).map((post) => (
+            <Link
+              key={`banner-${post.id}`}
+              to={`/post/${post.id}`}
+              className="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group"
+            >
+              <div className="relative h-32 md:h-40 overflow-hidden">
+                <img
+                  src={`https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(post.title + ' 分类信息广告 简洁清晰 专业')}&image_size=landscape_4_3`}
+                  alt={post.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-purple-600/80 flex items-center justify-between px-6 hidden">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
+                      📌
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">{post.title}</h3>
+                      <p className="text-white/80 text-sm">{post.category_name}</p>
+                    </div>
+                  </div>
+                  <span className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                    查看详情 →
+                  </span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-between px-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
+                      📌
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-lg">{post.title}</h3>
+                      <p className="text-white/80 text-sm">{post.category_name}</p>
+                    </div>
+                  </div>
+                  <span className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">
+                    查看详情 →
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
       {/* 置顶信息 */}
       {!loading && topPosts.length > 0 && (
         <div className="bg-white rounded-2xl p-4 shadow-sm">
