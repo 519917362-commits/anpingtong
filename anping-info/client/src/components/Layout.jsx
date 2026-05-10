@@ -41,44 +41,23 @@ export default function Layout() {
     <div className="min-h-screen bg-gray-50">
       {/* Web端顶部条幅广告1 - 仅在桌面端显示 */}
       <div className="hidden md:block">
-        <div className="bg-gradient-to-r from-yellow-600 via-red-600 to-orange-500 py-3">
-          <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-lg">
-                <span className="text-white font-bold text-lg">🏢 宏宇网业</span>
-              </div>
-              <div className="text-white">
-                <span className="font-bold text-xl">高薪诚聘内贸业务精英</span>
-              </div>
-            </div>
-            <div className="text-white text-sm">
-              <p>工作地点: 安平县红旗街街西头</p>
-              <p className="flex items-center gap-2">
-                <span>联系人: 王经理</span>
-                <span className="bg-white/20 px-2 py-0.5 rounded text-xs">点击查看电话 &gt;&gt;</span>
-              </p>
-            </div>
-          </div>
+        <div className="relative overflow-hidden">
+          <img 
+            src="/images/banner1.gif" 
+            alt="Banner招聘"
+            className="w-full h-16 object-cover"
+          />
         </div>
       </div>
 
       {/* Web端顶部条幅广告2 - 仅在桌面端显示 */}
       <div className="hidden md:block">
-        <div className="bg-gradient-to-r from-blue-800 to-blue-600 py-3">
-          <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-8">
-            <div className="flex items-center gap-2 text-white">
-              <span className="text-xl">🎯</span>
-              <span className="font-bold">本地商家入驻优惠中</span>
-              <span className="text-blue-200">首年免费</span>
-            </div>
-            <div className="flex items-center gap-2 text-white">
-              <span className="text-xl">📞</span>
-              <span>客服热线: 400-888-8888</span>
-            </div>
-            <Link to="/post-create" className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition">
-              免费发布信息 →
-            </Link>
-          </div>
+        <div className="relative overflow-hidden">
+          <img 
+            src="/images/banner2.gif" 
+            alt="Banner商家"
+            className="w-full h-16 object-cover"
+          />
         </div>
       </div>
 
