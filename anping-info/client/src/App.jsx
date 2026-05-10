@@ -30,6 +30,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="all-categories" element={<AllCategories />} />
+            <Route path="categories" element={<AllCategories />} />
             <Route path="category/:slug" element={<Category />} />
             <Route path="post/:id" element={<PostDetail />} />
             <Route path="post-create" element={<PostCreate />} />
