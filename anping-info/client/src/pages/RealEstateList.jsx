@@ -1,87 +1,64 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-const HOUSE_TYPES = {
-  rent: { name: '租房', icon: '🔑', color: 'blue' },
-  sale: { name: '二手房', icon: '🏡', color: 'green' },
-  shop: { name: '商业地产', icon: '🏪', color: 'orange' },
-  land: { name: '土地转让', icon: '🌍', color: 'lime' },
+const HOUSE_TYPE_MAP = {
+  zufang: { name: '租房', icon: '🔑', color: 'blue', keywords: ['出租', '租'] },
+  ershoufang: { name: '二手房', icon: '🏡', color: 'green', keywords: ['出售', '售'] },
+  shangpu: { name: '商铺门店', icon: '🏪', color: 'orange', keywords: ['商铺', '门店'] },
+  changfang: { name: '厂房', icon: '🏭', color: 'purple', keywords: ['厂房', '车间', '库房'] },
+  tandi: { name: '土地', icon: '🌍', color: 'lime', keywords: ['土地', '地块'] },
+  chewei: { name: '车位', icon: '🚗', color: 'gray', keywords: ['车位', '车库'] },
 }
 
 const AREAS = [
   { id: 'all', name: '全部区域' },
+  { id: '城东', name: '城东' },
+  { id: '城西', name: '城西' },
   { id: '县城', name: '县城' },
-  { id: '工业园区', name: '工业园区' },
-  { id: '经济开发区', name: '经济开发区' },
-  { id: '孙遥城', name: '孙遥城' },
-  { id: '马店', name: '马店' },
-  { id: '南王庄', name: '南王庄' },
-  { id: '东黄城', name: '东黄城' },
+  { id: '工业园', name: '工业园区' },
+  { id: '凯旋城', name: '凯旋城' },
+  { id: '五洲国际', name: '五洲国际' },
 ]
 
-const PRICE_OPTIONS = {
-  rent: [
-    { id: 'all', name: '不限' },
-    { id: '0-500', name: '500以下' },
-    { id: '500-1000', name: '500-1000' },
-    { id: '1000-2000', name: '1000-2000' },
-    { id: '2000-3000', name: '2000-3000' },
-    { id: '3000-5000', name: '3000-5000' },
-    { id: '5000+', name: '5000以上' },
-  ],
-  sale: [
-    { id: 'all', name: '不限' },
-    { id: '0-30', name: '30万以下' },
-    { id: '30-50', name: '30-50万' },
-    { id: '50-80', name: '50-80万' },
-    { id: '80-100', name: '80-100万' },
-    { id: '100-150', name: '100-150万' },
-    { id: '150+', name: '150万以上' },
-  ],
-  shop: [
-    { id: 'all', name: '不限' },
-    { id: '0-1000', name: '1000以下' },
-    { id: '1000-3000', name: '1000-3000' },
-    { id: '3000-5000', name: '3000-5000' },
-    { id: '5000+', name: '5000以上' },
-  ],
-  land: [
-    { id: 'all', name: '不限' },
-    { id: '0-50', name: '50万以下' },
-    { id: '50-100', name: '50-100万' },
-    { id: '100-200', name: '100-200万' },
-    { id: '200+', name: '200万以上' },
-  ],
-}
+const RENT_PRICE_OPTIONS = [
+  { id: 'all', name: '价格不限' },
+  { id: '0-500', name: '500元以下' },
+  { id: '500-1000', name: '500-1000元' },
+  { id: '1000-2000', name: '1000-2000元' },
+  { id: '2000-3000', name: '2000-3000元' },
+  { id: '3000-5000', name: '3000-5000元' },
+  { id: '5000+', name: '5000元以上' },
+]
 
-const LAYOUT_OPTIONS = [
-  { id: 'all', name: '户型不限' },
-  { id: '1室', name: '一室' },
-  { id: '2室', name: '两室' },
-  { id: '3室', name: '三室' },
-  { id: '4室', name: '四室及以上' },
+const SALE_PRICE_OPTIONS = [
+  { id: 'all', name: '价格不限' },
+  { id: '0-30', name: '30万以下' },
+  { id: '30-50', name: '30-50万' },
+  { id: '50-80', name: '50-80万' },
+  { id: '80-100', name: '80-100万' },
+  { id: '100-150', name: '100-150万' },
+  { id: '150+', name: '150万以上' },
 ]
 
 const AREA_OPTIONS = [
   { id: 'all', name: '面积不限' },
   { id: '0-50', name: '50㎡以下' },
-  { id: '50-80', name: '50-80㎡' },
-  { id: '80-120', name: '80-120㎡' },
-  { id: '120-150', name: '120-150㎡' },
-  { id: '150+', name: '150㎡以上' },
+  { id: '50-100', name: '50-100㎡' },
+  { id: '100-200', name: '100-200㎡' },
+  { id: '200-500', name: '200-500㎡' },
+  { id: '500+', name: '500㎡以上' },
 ]
 
 const SORT_OPTIONS = [
-  { id: 'latest', name: '最新发布' },
+  { id: 'latest', name: '最新' },
   { id: 'price-asc', name: '价格从低到高' },
   { id: 'price-desc', name: '价格从高到低' },
-  { id: 'area-desc', name: '面积从大到小' },
 ]
 
-function formatPrice(price, houseType) {
+function formatPrice(price, title) {
   if (!price || price === 0) return '面议'
-  if (houseType?.includes('租')) {
-    return `${Number(price).toLocaleString()}/月`
+  if (title?.includes('租')) {
+    return `${Number(price).toLocaleString()}元/月`
   }
   return `${Number(price).toLocaleString()}万`
 }
@@ -101,28 +78,29 @@ export default function RealEstateList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showMoreFilters, setShowMoreFilters] = useState(false)
 
-  const currentType = searchParams.get('type') || 'rent'
+  const currentType = searchParams.get('type') || 'zufang'
   const currentArea = searchParams.get('area') || 'all'
   const currentPrice = searchParams.get('price') || 'all'
-  const currentLayout = searchParams.get('layout') || 'all'
-  const currentHouseArea = searchParams.get('houseArea') || 'all'
+  const currentSize = searchParams.get('size') || 'all'
   const currentSort = searchParams.get('sort') || 'latest'
   const keyword = searchParams.get('keyword') || ''
 
   const [searchKeyword, setSearchKeyword] = useState(keyword)
 
+  const typeInfo = HOUSE_TYPE_MAP[currentType] || HOUSE_TYPE_MAP.zufang
+  const priceOptions = currentType === 'zufang' ? RENT_PRICE_OPTIONS : SALE_PRICE_OPTIONS
+
   useEffect(() => {
     fetchPosts()
-  }, [currentType, currentArea, currentPrice, currentLayout, currentHouseArea, currentSort, keyword])
+  }, [currentType, currentArea, currentPrice, currentSize, currentSort, keyword])
 
   const fetchPosts = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
       params.set('category', 'house')
-      params.set('pageSize', '100')
+      params.set('pageSize', '50')
       if (keyword) params.set('keyword', keyword)
 
       const res = await fetch(`/api/posts?${params.toString()}`)
@@ -130,78 +108,46 @@ export default function RealEstateList() {
       let allPosts = data.code === 200 ? data.data.list : []
 
       // 根据类型筛选
-      if (currentType !== 'all') {
-        allPosts = allPosts.filter(post => {
-          const title = (post.title || '').toLowerCase()
-          const houseType = (post.house_type || '').toLowerCase()
-          switch (currentType) {
-            case 'rent':
-              return title.includes('出租') || title.includes('租房') || houseType.includes('租')
-            case 'sale':
-              return title.includes('出售') || title.includes('二手房') || title.includes('转让') || houseType.includes('售')
-            case 'shop':
-              return title.includes('商铺') || title.includes('店铺') || title.includes('写字楼') || title.includes('厂房') || houseType.includes('商')
-            case 'land':
-              return title.includes('土地') || title.includes('地块') || houseType.includes('土地')
-            default:
-              return true
-          }
-        })
-      }
+      const kw = typeInfo.keywords
+      allPosts = allPosts.filter(post => {
+        const title = (post.title || '').toLowerCase()
+        const houseType = (post.house_type || '').toLowerCase()
+        return kw.some(k => title.includes(k) || houseType.includes(k))
+      })
 
       // 区域筛选
       if (currentArea !== 'all') {
         allPosts = allPosts.filter(post => {
-          const location = (post.location || '') + (post.title || '')
-          return location.includes(currentArea)
+          const text = (post.title || '') + (post.location || '')
+          return text.includes(currentArea)
         })
       }
 
       // 价格筛选
       if (currentPrice !== 'all') {
-        const [min, max] = currentPrice.replace('+', '-999999').split('-').map(Number)
+        const [min, max] = currentPrice.replace('+', '-999999999').split('-').map(Number)
         allPosts = allPosts.filter(post => {
           const price = post.price || 0
-          if (currentPrice.includes('+')) {
-            return price >= min
-          }
+          if (currentPrice.includes('+')) return price >= min
           return price >= min && price <= max
         })
       }
 
-      // 户型筛选
-      if (currentLayout !== 'all') {
-        allPosts = allPosts.filter(post => {
-          const layout = post.house_layout || post.title || ''
-          return layout.includes(currentLayout)
-        })
-      }
-
       // 面积筛选
-      if (currentHouseArea !== 'all') {
-        const [min, max] = currentHouseArea.replace('+', '-999999').split('-').map(Number)
+      if (currentSize !== 'all') {
+        const [min, max] = currentSize.replace('+', '-999999999').split('-').map(Number)
         allPosts = allPosts.filter(post => {
           const area = post.house_area || 0
-          if (currentHouseArea.includes('+')) {
-            return area >= min
-          }
+          if (currentSize.includes('+')) return area >= min
           return area >= min && area <= max
         })
       }
 
       // 排序
       switch (currentSort) {
-        case 'price-asc':
-          allPosts.sort((a, b) => (a.price || 0) - (b.price || 0))
-          break
-        case 'price-desc':
-          allPosts.sort((a, b) => (b.price || 0) - (a.price || 0))
-          break
-        case 'area-desc':
-          allPosts.sort((a, b) => (b.house_area || 0) - (a.house_area || 0))
-          break
-        default:
-          allPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        case 'price-asc': allPosts.sort((a, b) => (a.price || 0) - (b.price || 0)); break
+        case 'price-desc': allPosts.sort((a, b) => (b.price || 0) - (a.price || 0)); break
+        default: allPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       }
 
       setPosts(allPosts)
@@ -213,11 +159,8 @@ export default function RealEstateList() {
 
   const updateFilter = (key, value) => {
     setSearchParams(prev => {
-      if (value === 'all') {
-        prev.delete(key)
-      } else {
-        prev.set(key, value)
-      }
+      if (value === 'all') prev.delete(key)
+      else prev.set(key, value)
       return prev
     })
   }
@@ -232,18 +175,11 @@ export default function RealEstateList() {
     }
   }
 
-  const clearFilters = () => {
-    setSearchParams({ type: currentType })
-    setSearchKeyword('')
-  }
-
-  const typeInfo = HOUSE_TYPES[currentType] || HOUSE_TYPES.rent
-
   return (
     <div className="space-y-3">
       {/* 顶部标题 */}
       <div className="bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-2xl">{typeInfo.icon}</span>
             <div>
@@ -260,7 +196,7 @@ export default function RealEstateList() {
         </div>
 
         {/* 搜索框 */}
-        <form onSubmit={handleSearch} className="mt-3">
+        <form onSubmit={handleSearch}>
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
               <span className="text-gray-400">🔍</span>
@@ -268,14 +204,11 @@ export default function RealEstateList() {
                 type="text"
                 placeholder={`搜索${typeInfo.name}...`}
                 value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
+                onChange={e => setSearchKeyword(e.target.value)}
                 className="flex-1 outline-none text-sm bg-transparent"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition"
-            >
+            <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm">
               搜索
             </button>
           </div>
@@ -284,8 +217,8 @@ export default function RealEstateList() {
 
       {/* 类型切换 */}
       <div className="bg-white rounded-2xl p-3 shadow-sm">
-        <div className="flex items-center gap-2 overflow-x-auto">
-          {Object.entries(HOUSE_TYPES).map(([id, info]) => (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          {Object.entries(HOUSE_TYPE_MAP).map(([id, info]) => (
             <button
               key={id}
               onClick={() => updateFilter('type', id)}
@@ -304,17 +237,14 @@ export default function RealEstateList() {
 
       {/* 筛选条件 */}
       <div className="bg-white rounded-2xl p-3 shadow-sm">
-        {/* 区域 */}
         <div className="flex items-center gap-2 mb-2 overflow-x-auto">
-          <span className="text-gray-500 text-xs shrink-0 w-12">区域:</span>
+          <span className="text-gray-500 text-xs shrink-0">区域:</span>
           {AREAS.map(area => (
             <button
               key={area.id}
               onClick={() => updateFilter('area', area.id)}
               className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
-                currentArea === area.id
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                currentArea === area.id ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
               {area.name}
@@ -322,17 +252,14 @@ export default function RealEstateList() {
           ))}
         </div>
 
-        {/* 价格 */}
         <div className="flex items-center gap-2 mb-2 overflow-x-auto">
-          <span className="text-gray-500 text-xs shrink-0 w-12">价格:</span>
-          {(PRICE_OPTIONS[currentType] || PRICE_OPTIONS.rent).map(option => (
+          <span className="text-gray-500 text-xs shrink-0">价格:</span>
+          {priceOptions.map(option => (
             <button
               key={option.id}
               onClick={() => updateFilter('price', option.id)}
               className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
-                currentPrice === option.id
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                currentPrice === option.id ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
               {option.name}
@@ -340,48 +267,21 @@ export default function RealEstateList() {
           ))}
         </div>
 
-        {/* 更多筛选 */}
-        {showMoreFilters && (
-          <>
-            {/* 户型 */}
-            <div className="flex items-center gap-2 mb-2 overflow-x-auto">
-              <span className="text-gray-500 text-xs shrink-0 w-12">户型:</span>
-              {LAYOUT_OPTIONS.map(option => (
-                <button
-                  key={option.id}
-                  onClick={() => updateFilter('layout', option.id)}
-                  className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
-                    currentLayout === option.id
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {option.name}
-                </button>
-              ))}
-            </div>
+        <div className="flex items-center gap-2 mb-2 overflow-x-auto">
+          <span className="text-gray-500 text-xs shrink-0">面积:</span>
+          {AREA_OPTIONS.map(option => (
+            <button
+              key={option.id}
+              onClick={() => updateFilter('size', option.id)}
+              className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
+                currentSize === option.id ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {option.name}
+            </button>
+          ))}
+        </div>
 
-            {/* 面积 */}
-            <div className="flex items-center gap-2 mb-2 overflow-x-auto">
-              <span className="text-gray-500 text-xs shrink-0 w-12">面积:</span>
-              {AREA_OPTIONS.map(option => (
-                <button
-                  key={option.id}
-                  onClick={() => updateFilter('houseArea', option.id)}
-                  className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
-                    currentHouseArea === option.id
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {option.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* 排序和更多 */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           <div className="flex items-center gap-2">
             <span className="text-gray-500 text-xs">排序:</span>
@@ -390,28 +290,21 @@ export default function RealEstateList() {
                 key={option.id}
                 onClick={() => updateFilter('sort', option.id)}
                 className={`px-2 py-1 rounded text-xs transition ${
-                  currentSort === option.id
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  currentSort === option.id ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500'
                 }`}
               >
                 {option.name}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          {(currentArea !== 'all' || currentPrice !== 'all' || currentSize !== 'all') && (
             <button
-              onClick={() => setShowMoreFilters(!showMoreFilters)}
-              className="text-xs text-orange-500"
+              onClick={() => setSearchParams({ type: currentType })}
+              className="text-xs text-red-500"
             >
-              {showMoreFilters ? '收起' : '更多筛选'}
+              清除
             </button>
-            {(currentArea !== 'all' || currentPrice !== 'all' || currentLayout !== 'all' || currentHouseArea !== 'all') && (
-              <button onClick={clearFilters} className="text-xs text-red-500">
-                清除
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
@@ -427,14 +320,8 @@ export default function RealEstateList() {
         </div>
       ) : posts.length === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center">
-          <div className="text-4xl mb-4">🏠</div>
+          <div className="text-4xl mb-4">🔍</div>
           <p className="text-gray-400 mb-4">暂无符合条件的房源</p>
-          <Link
-            to="/post-create"
-            className="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition"
-          >
-            发布房源
-          </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-100">
@@ -444,29 +331,18 @@ export default function RealEstateList() {
               to={`/post/${post.id}`}
               className="flex gap-3 p-3 hover:bg-gray-50 transition"
             >
-              <div className="w-24 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-3xl shrink-0 overflow-hidden">
-                {post.images ? (
-                  <img src={post.images.split(',')[0]} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  '🏠'
-                )}
+              <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-3xl shrink-0">
+                {post.house_type === '厂房' ? '🏭' : post.house_type === '住宅' ? '🏠' : '🏪'}
               </div>
               <div className="flex-1 min-w-0 py-1">
                 <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1">{post.title}</h3>
                 <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                  <span>{post.house_layout || ''}</span>
+                  <span>{post.house_type || '房产'}</span>
                   {post.house_area > 0 && <span>{post.house_area}㎡</span>}
-                  <span>{post.house_floor || ''}</span>
+                  <span>{post.location || '安平县'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-500 font-bold">
-                      {formatPrice(post.price, post.house_type)}
-                    </span>
-                    {post.house_nature === '个人' && (
-                      <span className="text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded">个人</span>
-                    )}
-                  </div>
+                  <span className="text-red-500 font-bold">{formatPrice(post.price, post.title)}</span>
                   <span className="text-xs text-gray-400">{timeAgo(post.created_at)}</span>
                 </div>
               </div>

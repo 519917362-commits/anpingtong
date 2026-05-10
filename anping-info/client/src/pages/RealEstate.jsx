@@ -3,90 +3,96 @@ import { Link, useNavigate } from 'react-router-dom'
 
 const HOUSE_CATEGORIES = [
   {
-    id: 'rent',
+    id: 'zufang',
     name: '租房',
     icon: '🔑',
     color: 'from-blue-500 to-cyan-500',
-    desc: '公寓、整租、合租',
     subCategories: [
-      { name: '公寓', slug: 'apartment' },
-      { name: '临近地铁', slug: 'subway' },
-      { name: '整租', slug: 'whole-rent' },
-      { name: '合租', slug: 'share-rent' },
-      { name: '个人房源', slug: 'personal' },
-      { name: '押一付一', slug: 'pay1' },
+      { name: '住宅出租', slug: 'house-rent', fid: 14 },
+      { name: '厂房出租', slug: 'factory-rent', fid: 11 },
+      { name: '商铺出租', slug: 'shop-rent', fid: 16 },
+      { name: '土地出租', slug: 'land-rent', fid: 15 },
+      { name: '厂房求租', slug: 'factory-wanted', fid: 13 },
     ]
   },
   {
-    id: 'sale',
+    id: 'ershoufang',
     name: '二手房',
     icon: '🏡',
     color: 'from-green-500 to-emerald-500',
-    desc: '小户型、精装、学区房',
     subCategories: [
-      { name: '小户型', slug: 'small' },
-      { name: '精装两居', slug: 'jingzhuang' },
-      { name: '小三居', slug: 'small3' },
-      { name: '准新房', slug: 'new' },
-      { name: '精装修', slug: 'decoration' },
-      { name: '南北通透', slug: 'north-south' },
-      { name: '低总价', slug: 'low-price' },
-      { name: '带电梯', slug: 'elevator' },
+      { name: '住宅出售', slug: 'house-sale', fid: 12 },
+      { name: '个人房源', slug: 'personal' },
+      { name: '急售房源', slug: 'urgent' },
+      { name: '学区房', slug: 'school' },
     ]
   },
   {
-    id: 'shop',
-    name: '商业地产',
+    id: 'shangpu',
+    name: '商铺门店',
     icon: '🏪',
     color: 'from-orange-500 to-amber-500',
-    desc: '商铺、写字楼、厂房',
     subCategories: [
-      { name: '商铺出租', slug: 'shop-rent' },
-      { name: '商铺出售', slug: 'shop-sale' },
-      { name: '生意转让', slug: 'transfer' },
-      { name: '写字楼出租', slug: 'office-rent' },
-      { name: '厂房仓库', slug: 'factory' },
+      { name: '商铺出售', slug: 'shop-sale', fid: 16 },
+      { name: '商铺转让', slug: 'shop-transfer', fid: 17 },
+      { name: '商铺求租', slug: 'shop-wanted' },
+      { name: '生意转让', slug: 'business' },
     ]
   },
   {
-    id: 'land',
-    name: '土地转让',
+    id: 'changfang',
+    name: '厂房',
+    icon: '🏭',
+    color: 'from-purple-500 to-pink-500',
+    subCategories: [
+      { name: '厂房出租', slug: 'factory-rent', fid: 11 },
+      { name: '厂房出售', slug: 'factory-sale' },
+      { name: '厂房转让', slug: 'factory-transfer' },
+      { name: '厂房求租', slug: 'factory-wanted', fid: 13 },
+      { name: '库房出租', slug: 'warehouse' },
+    ]
+  },
+  {
+    id: 'tudi',
+    name: '土地',
     icon: '🌍',
     color: 'from-lime-500 to-green-500',
-    desc: '土地出售、厂房用地',
     subCategories: [
-      { name: '土地出售', slug: 'land-sale' },
+      { name: '土地转让', slug: 'land-transfer', fid: 15 },
+      { name: '土地出租', slug: 'land-rent' },
       { name: '厂房用地', slug: 'factory-land' },
     ]
   },
-]
-
-const FEATURED_TAGS = [
-  { name: '安选验真', desc: '保真保看，真实在售', icon: '✓', color: 'bg-green-500' },
-  { name: 'VR看房', desc: '在线看房，身临其境', icon: '👓', color: 'bg-purple-500' },
-  { name: '急售房源', desc: '价格优惠，快速成交', icon: '🔥', color: 'bg-red-500' },
+  {
+    id: 'chewei',
+    name: '车位',
+    icon: '🚗',
+    color: 'from-gray-500 to-slate-500',
+    subCategories: [
+      { name: '车位出售', slug: 'parking-sale' },
+      { name: '车位出租', slug: 'parking-rent' },
+      { name: '车库出售', slug: 'garage-sale' },
+    ]
+  },
 ]
 
 export default function RealEstate() {
-  const [featuredPosts, setFeaturedPosts] = useState([])
-  const [latestPosts, setLatestPosts] = useState([])
+  const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/posts?category=house&pageSize=6').then(r => r.json()),
-      fetch('/api/posts?category=house&pageSize=12').then(r => r.json()),
-    ]).then(([featuredData, latestData]) => {
-      if (featuredData.code === 200) setFeaturedPosts(featuredData.data.list)
-      if (latestData.code === 200) setLatestPosts(latestData.data.list)
-      setLoading(false)
-    })
+    fetch('/api/posts?category=house&pageSize=20')
+      .then(r => r.json())
+      .then(data => {
+        if (data.code === 200) setPosts(data.data.list)
+        setLoading(false)
+      })
   }, [])
 
-  const formatPrice = (price, houseType) => {
+  const formatPrice = (price, title) => {
     if (!price || price === 0) return '面议'
-    if (houseType?.includes('租')) {
+    if (title?.includes('租')) {
       return `${Number(price).toLocaleString()}/月`
     }
     return `${Number(price).toLocaleString()}万`
@@ -120,138 +126,40 @@ export default function RealEstate() {
         </div>
       </div>
 
-      {/* 分类入口 */}
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-        {HOUSE_CATEGORIES.map((cat, index) => (
-          <div key={cat.id} className={`p-4 ${index > 0 ? 'border-t border-gray-100' : ''}`}>
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-2xl shrink-0`}>
+      {/* 六大分类 - 2行3列网格 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {HOUSE_CATEGORIES.map(cat => (
+          <Link
+            key={cat.id}
+            to={`/real-estate/${cat.id}`}
+            className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition group"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform`}>
                 {cat.icon}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <Link to={`/real-estate/${cat.id}`} className="font-bold text-gray-800 hover:text-orange-500">
-                    {cat.name}
-                  </Link>
-                  <Link to={`/real-estate/${cat.id}`} className="text-xs text-gray-400 hover:text-orange-500">
-                    查看全部 →
-                  </Link>
-                </div>
-                <p className="text-xs text-gray-400 mb-2">{cat.desc}</p>
-                <div className="flex flex-wrap gap-2">
-                  {cat.subCategories.slice(0, 6).map(sub => (
-                    <Link
-                      key={sub.slug}
-                      to={`/real-estate/${cat.id}?sub=${sub.slug}`}
-                      className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded hover:bg-orange-100 hover:text-orange-600 transition"
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <span className="font-bold text-gray-800 text-lg">{cat.name}</span>
             </div>
-          </div>
+            <div className="flex flex-wrap gap-1.5">
+              {cat.subCategories.slice(0, 4).map(sub => (
+                <span
+                  key={sub.slug}
+                  className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
+                >
+                  {sub.name}
+                </span>
+              ))}
+            </div>
+          </Link>
         ))}
       </div>
 
-      {/* 特色服务 */}
-      <div className="grid grid-cols-3 gap-3">
-        {FEATURED_TAGS.map(tag => (
-          <div key={tag.name} className="bg-white rounded-xl p-3 shadow-sm text-center">
-            <div className={`w-8 h-8 ${tag.color} rounded-full flex items-center justify-center text-white mx-auto mb-1`}>
-              {tag.icon}
-            </div>
-            <div className="font-medium text-sm text-gray-800">{tag.name}</div>
-            <div className="text-xs text-gray-400">{tag.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* 推荐房源 */}
-      {featuredPosts.length > 0 && (
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-          <div className="bg-gradient-to-r from-orange-400 to-amber-400 p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-white">
-                <span className="text-xl">⭐</span>
-                <span className="font-bold">推荐房源</span>
-              </div>
-              <Link to="/real-estate/all" className="text-white/80 text-xs hover:text-white">
-                更多 →
-              </Link>
-            </div>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {featuredPosts.slice(0, 6).map(post => (
-              <Link
-                key={post.id}
-                to={`/post/${post.id}`}
-                className="flex gap-3 p-3 hover:bg-gray-50 transition"
-              >
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-3xl shrink-0 overflow-hidden">
-                  {post.images ? (
-                    <img src={post.images.split(',')[0]} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    '🏠'
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1">{post.title}</h3>
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-                    <span>{post.house_layout || post.location || '安平县'}</span>
-                    {post.house_area > 0 && <span>{post.house_area}㎡</span>}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-red-500 font-bold text-sm">
-                      {formatPrice(post.price, post.house_type)}
-                    </span>
-                    <span className="text-xs text-gray-400">{timeAgo(post.created_at)}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+      {/* 最新房源列表 */}
+      {loading ? (
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <div className="text-gray-400">加载中...</div>
         </div>
-      )}
-
-      {/* 最新房源 */}
-      {latestPosts.length > 0 && (
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-3 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">📋</span>
-              <span className="font-bold text-gray-800">最新房源</span>
-            </div>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {latestPosts.map(post => (
-              <Link
-                key={post.id}
-                to={`/post/${post.id}`}
-                className="flex items-center gap-3 p-3 hover:bg-gray-50 transition"
-              >
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm text-gray-800 line-clamp-1">{post.title}</h3>
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-                    <span>{post.location || '安平县'}</span>
-                    {post.house_area > 0 && <span>· {post.house_area}㎡</span>}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-red-500 font-bold text-sm">
-                    {formatPrice(post.price, post.house_type)}
-                  </div>
-                  <div className="text-xs text-gray-400">{timeAgo(post.created_at)}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 空状态 */}
-      {!loading && latestPosts.length === 0 && (
+      ) : posts.length === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center">
           <div className="text-4xl mb-4">🏠</div>
           <p className="text-gray-400 mb-4">暂无房产信息</p>
@@ -261,6 +169,45 @@ export default function RealEstate() {
           >
             发布房源
           </Link>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-3 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📋</span>
+                <span className="font-bold text-gray-800">最新房源</span>
+                <span className="text-xs text-gray-400">({posts.length}条)</span>
+              </div>
+            </div>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {posts.map(post => (
+              <Link
+                key={post.id}
+                to={`/post/${post.id}`}
+                className="flex items-center gap-3 p-3 hover:bg-gray-50 transition"
+              >
+                <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-2xl shrink-0 overflow-hidden">
+                  {post.house_type === '厂房' ? '🏭' : post.house_type === '住宅' ? '🏠' : '🏪'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-gray-800 line-clamp-2">{post.title}</h3>
+                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                    <span className="bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded">{post.house_type || '房产'}</span>
+                    {post.house_area > 0 && <span>{post.house_area}㎡</span>}
+                    <span>{post.location || '安平县'}</span>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-red-500 font-bold">
+                    {formatPrice(post.price, post.title)}
+                  </div>
+                  <div className="text-xs text-gray-400">{timeAgo(post.created_at)}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>
