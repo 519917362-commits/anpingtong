@@ -19,7 +19,14 @@ export default function PostDetail() {
       .then(r => r.json())
       .then(d => {
         if (d.code === 200) setPost(d.data)
-        else navigate('/')
+        else {
+          console.error('获取帖子失败:', d.message)
+          navigate('/')
+        }
+      })
+      .catch(err => {
+        console.error('网络错误:', err)
+        navigate('/')
       })
       .finally(() => setLoading(false))
   }, [id])
