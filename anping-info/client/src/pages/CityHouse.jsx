@@ -87,7 +87,7 @@ export default function CityHouse() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      params.set('pageSize', '50')
+      params.set('pageSize', '100')
       
       if (keyword) {
         params.set('keyword', keyword)
@@ -100,6 +100,56 @@ export default function CityHouse() {
       
       const results = await Promise.all(promises)
       let allPosts = results.flatMap(r => r.code === 200 ? r.data.list : [])
+      
+      const propertyData = [
+        // 厂房出租
+        { id: 10001, title: '东寨子临街库房出租', location: '东寨子', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10002, title: '城西安华路西出租厂房200平米', location: '城西', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10003, title: '出租厂房2100平米带天车办公室宿舍', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10004, title: '出租赵八庄工业区内新厂房6000平米', location: '赵八庄', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10005, title: '出租车间1300平独门独院', location: '西外环', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10006, title: '出租厂房1700平米新式厂房带办公楼', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10007, title: '徐疃科发园区出租独门独院厂房3200平米', location: '徐疃', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10008, title: '南胡林村厂房出租500平水电齐全', location: '南胡林', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10009, title: '聚成物流东厂房出租6000平米新厂房', location: '聚成物流', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10010, title: '低价出租标准新厂房2000-7000平米', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10011, title: '汽车站附近出租厂房带天车办公室宿舍', location: '汽车站', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10012, title: '徐疃喷塑厂房出租1000平米环评齐全', location: '徐疃', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10013, title: '出租厂房4600平可分租可整租', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10014, title: '耿屯附近出租厂房1350平米带天车办公室', location: '耿屯', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10015, title: '台城村北工业厂房1000平米独门独院', location: '台城', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10016, title: '南外环2200平米厂房+400平米办公楼出租', location: '南外环', price: 0, category_slug: 'house', category_name: '厂房出租', created_at: '2026-05-10' },
+        { id: 10017, title: '出租铺垫好的场地4000平', location: '安平县', price: 0, category_slug: 'house', category_name: '场地出租', created_at: '2026-05-10' },
+        // 住宅楼出售
+        { id: 20001, title: '出售安平县裕华路国盛小区单元住宅楼', location: '裕华路', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-09' },
+        { id: 20002, title: '出售华坐西步梯三楼顶层三室两厅', location: '华坐西', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-09' },
+        { id: 20003, title: '出售凯旋城一期住房134平', location: '凯旋城', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        { id: 20004, title: '金地格林房屋出售99.99平', location: '金地格林', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-09' },
+        { id: 20005, title: '出售鑫苑小区148平', location: '鑫苑小区', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-09' },
+        { id: 20006, title: '出售宏业小区步梯顶楼110平', location: '宏业小区', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        { id: 20007, title: '出售隆庆小区住宅楼120平', location: '隆庆小区', price: 0, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        { id: 20008, title: '金色阳光135平带车库76万', location: '金色阳光', price: 760000, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        { id: 20009, title: '峰尚141平精装带车位75万', location: '峰尚', price: 750000, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        { id: 20010, title: '金穗108平小三室60万', location: '金穗', price: 600000, category_slug: 'house', category_name: '住宅出售', created_at: '2026-05-08' },
+        // 住宅楼出租
+        { id: 30001, title: '出租南环启蒙学校附近单间一个月700', location: '南环', price: 700, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        { id: 30002, title: '出租一小附近单间一年6500', location: '一小', price: 6500, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        { id: 30003, title: '出租城东王各庄社区楼房两室一厅90平', location: '城东', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-06' },
+        { id: 30004, title: '旧电力局家属院二楼二室一厅80平', location: '旧电力局', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-01' },
+        { id: 30005, title: '鑫旺小区二楼130平米', location: '鑫旺小区', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-01' },
+        { id: 30006, title: '平安公园附近楼房三室一厅家具家电齐全', location: '平安公园', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-01' },
+        { id: 30007, title: '锦绣花城楼房出租40平', location: '锦绣花城', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        { id: 30008, title: '汽车站西单间出租', location: '汽车站', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        { id: 30009, title: '中心路月租房单间出租', location: '中心路', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        { id: 30010, title: '住宅楼出租120平', location: '安平县', price: 0, category_slug: 'house', category_name: '住宅出租', created_at: '2026-05-10' },
+        // 厂房求租
+        { id: 40001, title: '诚租1200平左右厂房', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-05-09' },
+        { id: 40002, title: '求租900-1000平城西厂房', location: '城西', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-05-05' },
+        { id: 40003, title: '求租900-1000平独门独院', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-05-05' },
+        { id: 40004, title: '求租厂房350-400平带小院', location: '安平县', price: 0, category_slug: 'house', category_name: '厂房求租', created_at: '2026-04-21' },
+      ]
+      
+      allPosts = [...allPosts, ...propertyData]
       
       if (currentType !== 'all') {
         allPosts = allPosts.filter(post => {
