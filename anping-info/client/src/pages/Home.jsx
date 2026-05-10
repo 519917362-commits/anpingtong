@@ -10,7 +10,13 @@ const CATEGORY_ICONS = {
 }
 
 const QUICK_CATEGORIES = [
+  { name: '招聘', slug: 'jobs', icon: '💼', color: 'from-red-500 to-pink-500' },
   { name: '房产', slug: 'real-estate', icon: '🏠', color: 'from-orange-500 to-red-500', highlight: true },
+  { name: '二手车', slug: 'vehicle', icon: '🚗', color: 'from-blue-500 to-cyan-500' },
+  { name: '二手闲置', slug: 'secondhand', icon: '🔄', color: 'from-green-500 to-teal-500' },
+  { name: '二手回收', slug: 'recycle', icon: '♻️', color: 'from-emerald-500 to-green-500' },
+  { name: '家政服务', slug: 'home-service', icon: '🧹', color: 'from-purple-500 to-pink-500' },
+  { name: '商务服务', slug: 'business', icon: '💼', color: 'from-indigo-500 to-purple-500' },
 ]
 
 function timeAgo(dateStr) {
@@ -150,19 +156,23 @@ export default function Home() {
 
           {/* 分类导航 */}
           <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex justify-center">
-              <Link
-                to="/real-estate"
-                className={`flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-50 transition group ${
-                  'highlight' ? 'ring-2 ring-red-300 ring-offset-2' : ''
-                }`}
-              >
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform">
-                  🏠
-                </div>
-                <span className="text-lg font-bold text-red-500">房产</span>
-                <span className="text-xs text-gray-400">租房·买房·商铺·厂房</span>
-              </Link>
+            <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
+              {QUICK_CATEGORIES.map(cat => (
+                <Link
+                  key={cat.slug}
+                  to={cat.slug === 'real-estate' ? '/real-estate' : `/category/${cat.slug}`}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition group ${
+                    cat.highlight ? 'ring-2 ring-red-300 ring-offset-2' : ''
+                  }`}
+                >
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform`}>
+                    {cat.icon}
+                  </div>
+                  <span className={`text-xs font-medium ${cat.highlight ? 'text-red-500' : 'text-gray-700'}`}>
+                    {cat.name}
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
 

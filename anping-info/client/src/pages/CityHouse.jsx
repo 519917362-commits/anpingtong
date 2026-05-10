@@ -30,20 +30,11 @@ const AREAS = [
 const PRICE_RANGES = [
   { id: 'all', name: '不限' },
   { id: '0-1000', name: '1000元以下' },
-  { id: '1000-2000', name: '1000-2000元' },
-  { id: '2000-3000', name: '2000-3000元' },
-  { id: '3000-5000', name: '3000-5000元' },
-  { id: '5000-10000', name: '5000-10000元' },
-  { id: '10000+', name: '10000元以上' },
-]
-
-const AREA_RANGES = [
-  { id: 'all', name: '不限' },
-  { id: '0-50', name: '50㎡以下' },
-  { id: '50-100', name: '50-100㎡' },
-  { id: '100-200', name: '100-200㎡' },
-  { id: '200-500', name: '200-500㎡' },
-  { id: '500+', name: '500㎡以上' },
+  { id: '1000-2000', name: '1000-2000' },
+  { id: '2000-3000', name: '2000-3000' },
+  { id: '3000-5000', name: '3000-5000' },
+  { id: '5000-10000', name: '5000-10000' },
+  { id: '10000+', name: '10000以上' },
 ]
 
 const SORT_OPTIONS = [
@@ -73,7 +64,7 @@ function timeAgo(dateStr) {
   return dateStr.slice(0, 10)
 }
 
-export default function RealEstate() {
+export default function CityHouse() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -231,22 +222,29 @@ export default function RealEstate() {
   return (
     <div className="space-y-4">
       {/* 顶部搜索 */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm">
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 shadow-sm text-white">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">🏠</span>
+          <div>
+            <h1 className="text-xl font-bold">同城房产</h1>
+            <p className="text-xs opacity-80">安平县房产信息平台</p>
+          </div>
+        </div>
         <form onSubmit={handleSearch}>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 bg-gray-100 rounded-xl px-4 py-3 flex items-center gap-2">
-              <span className="text-gray-400 text-lg">🔍</span>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-white rounded-xl px-4 py-2.5 flex items-center gap-2">
+              <span className="text-gray-400">🔍</span>
               <input
                 type="text"
                 placeholder="搜索房产信息..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="flex-1 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                className="flex-1 outline-none text-gray-700 placeholder-gray-400 bg-transparent text-sm"
               />
             </div>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition"
+              className="bg-white text-orange-500 px-4 py-2.5 rounded-xl font-medium hover:bg-gray-100 transition text-sm"
             >
               搜索
             </button>
@@ -255,145 +253,122 @@ export default function RealEstate() {
       </div>
 
       {/* 分类导航 */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm">
+      <div className="bg-white rounded-2xl p-3 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           {PROPERTY_TYPES.map(type => (
             <button
               key={type.id}
               onClick={() => updateFilter('type', type.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap transition text-sm ${
                 currentType === type.id
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               <span>{type.icon}</span>
-              <span className="text-sm font-medium">{type.name}</span>
+              <span className="font-medium">{type.name}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* 筛选区域 */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-2xl p-3 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-gray-500 text-sm">筛选:</span>
+            <span className="text-gray-500 text-xs">筛选:</span>
             {(currentPrice !== 'all' || currentArea !== 'all' || currentSort !== 'default' || currentType !== 'all') && (
               <button
                 onClick={clearFilters}
                 className="text-xs text-red-500 hover:underline"
               >
-                清除筛选
+                清除
               </button>
             )}
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="text-sm text-blue-600 flex items-center gap-1"
+            className="text-xs text-orange-500 flex items-center gap-1"
           >
-            <span>{showFilters ? '收起筛选' : '更多筛选'}</span>
+            <span>{showFilters ? '收起' : '更多'}</span>
             <span>{showFilters ? '▲' : '▼'}</span>
           </button>
         </div>
 
-        {/* 区域筛选 */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-gray-500 text-sm w-12 shrink-0">区域:</span>
-          <div className="flex flex-wrap gap-2">
-            {AREAS.map(area => (
-              <button
-                key={area.id}
-                onClick={() => updateFilter('area', area.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition ${
-                  currentArea === area.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {area.name}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2 mb-2 overflow-x-auto">
+          <span className="text-gray-400 text-xs shrink-0">区域:</span>
+          {AREAS.map(area => (
+            <button
+              key={area.id}
+              onClick={() => updateFilter('area', area.id)}
+              className={`px-2 py-1 rounded text-xs whitespace-nowrap transition ${
+                currentArea === area.id
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {area.name}
+            </button>
+          ))}
         </div>
 
-        {/* 价格筛选 */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-gray-500 text-sm w-12 shrink-0">价格:</span>
-          <div className="flex flex-wrap gap-2">
-            {PRICE_RANGES.map(range => (
-              <button
-                key={range.id}
-                onClick={() => updateFilter('price', range.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition ${
-                  currentPrice === range.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {range.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 面积筛选 */}
         {showFilters && (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-gray-500 text-sm w-12 shrink-0">面积:</span>
-            <div className="flex flex-wrap gap-2">
-              {AREA_RANGES.map(range => (
-                <button
-                  key={range.id}
-                  onClick={() => updateFilter('area', range.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition ${
-                    currentArea === range.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {range.name}
-                </button>
-              ))}
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-gray-400 text-xs w-8 shrink-0">价格:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {PRICE_RANGES.map(range => (
+                  <button
+                    key={range.id}
+                    onClick={() => updateFilter('price', range.id)}
+                    className={`px-2 py-1 rounded text-xs transition ${
+                      currentPrice === range.id
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {range.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* 排序 */}
-        <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-sm w-12 shrink-0">排序:</span>
-          <div className="flex flex-wrap gap-2">
-            {SORT_OPTIONS.map(option => (
-              <button
-                key={option.id}
-                onClick={() => updateFilter('sort', option.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition ${
-                  currentSort === option.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {option.name}
-              </button>
-            ))}
-          </div>
-        </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-xs w-8 shrink-0">排序:</span>
+              <div className="flex gap-1.5">
+                {SORT_OPTIONS.map(option => (
+                  <button
+                    key={option.id}
+                    onClick={() => updateFilter('sort', option.id)}
+                    className={`px-2 py-1 rounded text-xs transition ${
+                      currentSort === option.id
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {option.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* 结果统计 */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-500">
-          找到 <span className="text-blue-600 font-medium">{posts.length}</span> 个房产信息
+          共 <span className="text-orange-500 font-medium">{posts.length}</span> 条
         </div>
         <Link
           to="/post-create"
-          className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition"
+          className="bg-red-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-red-600 transition"
         >
-          发布房产信息
+          发布信息
         </Link>
       </div>
 
-      {/* 房源列表 */}
+      {/* 列表 */}
       {loading ? (
         <div className="bg-white rounded-2xl p-8 text-center">
           <div className="text-gray-400">加载中...</div>
@@ -402,12 +377,6 @@ export default function RealEstate() {
         <div className="bg-white rounded-2xl p-8 text-center">
           <div className="text-4xl mb-4">🏠</div>
           <p className="text-gray-400 mb-4">暂无符合条件的房产信息</p>
-          <Link
-            to="/post-create"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            立即发布
-          </Link>
         </div>
       ) : (
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
@@ -415,23 +384,23 @@ export default function RealEstate() {
             <Link
               key={post.id}
               to={`/post/${post.id}`}
-              className="flex gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition last:border-b-0"
+              className="flex gap-3 p-3 border-b border-gray-100 hover:bg-gray-50 transition last:border-b-0"
             >
-              <div className="w-24 h-24 bg-gray-200 rounded-xl flex items-center justify-center text-3xl shrink-0">
+              <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-2xl shrink-0">
                 🏠
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-0.5">
                   <h3 className="text-sm font-medium text-gray-800 line-clamp-2 flex-1">
                     {post.title}
                   </h3>
-                  <span className={`px-2 py-0.5 rounded text-xs ${getPropertyTypeColor(getPropertyType(post.title))}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-xs ${getPropertyTypeColor(getPropertyType(post.title))}`}>
                     {getPropertyType(post.title)}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mb-2">{post.location || '安平县'}</p>
+                <p className="text-xs text-gray-400 mb-1">{post.location || '安平县'}</p>
                 <div className="flex items-center justify-between">
-                  <div className="text-red-500 font-bold">
+                  <div className="text-red-500 font-bold text-sm">
                     {formatPrice(post.price, getPropertyType(post.title).includes('租') ? 'rent' : 'sale')}
                   </div>
                   <div className="text-xs text-gray-400">{timeAgo(post.created_at)}</div>
@@ -441,22 +410,6 @@ export default function RealEstate() {
           ))}
         </div>
       )}
-
-      {/* 底部提示 */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <div className="flex items-start gap-2">
-          <span className="text-xl">💡</span>
-          <div>
-            <h4 className="font-medium text-amber-800 mb-1">温馨提示</h4>
-            <ul className="text-xs text-amber-700 space-y-1">
-              <li>• 租房前请实地看房，核实房源信息</li>
-              <li>• 签订合同前仔细阅读条款，注意押金退还条件</li>
-              <li>• 警惕低价房源，谨防诈骗</li>
-              <li>• 如遇可疑信息，请立即举报</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

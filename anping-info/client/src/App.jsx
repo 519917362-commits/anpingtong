@@ -22,7 +22,7 @@ import NoticeDetail from './pages/NoticeDetail'
 import StaticPage from './pages/StaticPage'
 import AllCategories from './pages/AllCategories'
 import YellowPages from './pages/YellowPages'
-import RealEstate from './pages/RealEstate'
+import CityHouse from './pages/CityHouse'
 
 export default function App() {
   return (
@@ -57,8 +57,8 @@ export default function App() {
             <Route path="page/:slug" element={<StaticPage />} />
             {/* 安平黄页 */}
             <Route path="yellow-pages" element={<YellowPages />} />
-            {/* 房产专区 */}
-            <Route path="real-estate" element={<RealEstate />} />
+            {/* 同城房产 */}
+            <Route path="real-estate" element={<CityHouse />} />
           </Route>
         </Routes>
       </AuthProvider>
