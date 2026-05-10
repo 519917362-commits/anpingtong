@@ -129,7 +129,7 @@ export default function Layout() {
               className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 sm:px-6 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition shrink-0 shadow-md"
             >
               <span className="sm:hidden">+</span>
-              <span className="hidden sm:inline">+ 发布信息</span>
+              <span className="hidden sm:inline">+ 免费发布</span>
             </Link>
           </div>
         </div>

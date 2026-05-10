@@ -50,7 +50,6 @@ export default function Home() {
   const [topPosts, setTopPosts] = useState([])
   const [categoryPosts, setCategoryPosts] = useState({})
   const [loading, setLoading] = useState(true)
-  const [searchKeyword, setSearchKeyword] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -80,13 +79,6 @@ export default function Home() {
       setLoading(false)
     })
   }, [])
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchKeyword.trim()) {
-      navigate(`/search?keyword=${encodeURIComponent(searchKeyword.trim())}`)
-    }
-  }
 
   const PostItem = ({ post, showPrice = true }) => (
     <Link
@@ -141,42 +133,6 @@ export default function Home() {
         </div>
       ) : (
         <>
-          {/* 搜索栏 */}
-          <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl p-4 shadow-sm">
-            <form onSubmit={handleSearch}>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 bg-white rounded-xl px-4 py-3 flex items-center gap-2">
-                  <span className="text-gray-400 text-lg">🔍</span>
-                  <input
-                    type="text"
-                    placeholder="找工作、找房子、二手物品..."
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    className="flex-1 outline-none text-gray-700 placeholder-gray-400"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 transition"
-                >
-                  搜索
-                </button>
-              </div>
-            </form>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="text-white/80 text-sm">热门:</span>
-              {['招聘', '租房', '二手房', '转让', '服务'].map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => navigate(`/search?keyword=${tag}`)}
-                  className="bg-white/20 text-white text-xs px-3 py-1 rounded-full hover:bg-white/30 transition"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* 分类导航 */}
           <div className="bg-white rounded-2xl p-4 shadow-sm">
             <div className="grid grid-cols-4 md:grid-cols-7 gap-3">
@@ -199,7 +155,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 全站置顶资讯 */}
+          {/* 全站置顶条幅广告 */}
           {topPosts.length > 0 && (
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
               <div className="bg-gradient-to-r from-amber-400 to-orange-500 p-3">
@@ -214,10 +170,55 @@ export default function Home() {
                 </div>
               </div>
               <div className="divide-y divide-gray-100">
-                {topPosts.map(post => (
-                  <div key={post.id}>
-                    <PostItem post={post} showPrice={false} />
-                  </div>
+                {topPosts.map((post) => (
+                  <Link
+                    key={post.id}
+                    to={`/post/${post.id}`}
+                    className="block w-full h-24 md:h-32 overflow-hidden relative group"
+                  >
+                    <img
+                      src={`https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(
+                        `${post.title} 分类信息广告图 简洁清晰`
+                      )}&image_size=square`}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        const fallback = e.target.nextSibling
+                        if (fallback) fallback.style.display = 'flex'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/20 flex items-center justify-between px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-white/90 rounded-full">
+                          <span className="text-xl">
+                            {CATEGORY_ICONS[post.category_slug] || '📌'}
+                          </span>
+                        </div>
+                        <div className="text-white">
+                          <h4 className="font-bold line-clamp-1">{post.title}</h4>
+                          <p className="text-white/80 text-sm">{post.category_name}</p>
+                        </div>
+                      </div>
+                      <div className="text-white/80">
+                        <span className="bg-white/20 px-3 py-1 rounded-full text-sm">查看详情 →</span>
+                      </div>
+                    </div>
+                    {/* 渐变背景兜底 */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 hidden items-center justify-center">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-white/90 rounded-full">
+                          <span className="text-xl">
+                            {CATEGORY_ICONS[post.category_slug] || '📌'}
+                          </span>
+                        </div>
+                        <div className="text-white">
+                          <h4 className="font-bold line-clamp-1">{post.title}</h4>
+                          <p className="text-white/80 text-sm">{post.category_name}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -388,7 +389,7 @@ export default function Home() {
                 to="/post-create"
                 className="inline-block bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-6 py-2 rounded-lg hover:opacity-90 transition"
               >
-                立即发布信息
+                免费发布
               </Link>
             </div>
           )}
