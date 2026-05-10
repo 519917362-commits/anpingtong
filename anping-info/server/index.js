@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.js'
 import noticesRoutes from './routes/notices.js'
 import companiesRoutes from './routes/companies.js'
 import staticRoutes from './routes/static.js'
+import favoritesRoutes from './routes/favorites.js'
 
 // 初始化数据库（建表 + 默认数据）
 import './db/schema.js'
@@ -29,6 +30,7 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/notices', noticesRoutes)
 app.use('/api/companies', companiesRoutes)
 app.use('/api/static', staticRoutes)
+app.use('/api/favorites', favoritesRoutes)
 
 // 健康检查
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }))
