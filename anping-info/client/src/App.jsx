@@ -61,6 +61,7 @@ export default function App() {
             <Route path="yellow-pages" element={<YellowPages />} />
             {/* 同城房产 */}
             <Route path="real-estate" element={<RealEstate />} />
+            <Route path="real-estate/:type" element={<RealEstateList />} />
             <Route path="city-house" element={<CityHouse />} />
           </Route>
         </Routes>
