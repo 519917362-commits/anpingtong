@@ -119,21 +119,19 @@ export default function Layout() {
               </div>
             </Link>
 
-            {/* 搜索框 - 非首页显示 */}
-            {location.pathname !== '/' && (
-              <form onSubmit={handleSearch} className="flex-1 max-w-xl flex border border-gray-200 rounded-full overflow-hidden">
-                <input
-                  value={keyword}
-                  onChange={e => setKeyword(e.target.value)}
-                  placeholder="搜索..."
-                  className="flex-1 px-3 py-2 text-sm outline-none min-w-0"
-                />
-                <button type="submit" className="bg-blue-500 px-3 sm:px-5 text-white text-sm hover:bg-blue-600 transition shrink-0">
-                  <span className="sm:hidden">🔍</span>
-                  <span className="hidden sm:inline">搜索</span>
-                </button>
-              </form>
-            )}
+            {/* 搜索框 - 所有页面显示 */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-xl flex border border-gray-200 rounded-full overflow-hidden">
+              <input
+                value={keyword}
+                onChange={e => setKeyword(e.target.value)}
+                placeholder="搜索信息..."
+                className="flex-1 px-3 py-2 text-sm outline-none min-w-0"
+              />
+              <button type="submit" className="bg-gradient-to-r from-blue-600 to-cyan-500 px-3 sm:px-5 text-white text-sm hover:opacity-90 transition shrink-0">
+                <span className="sm:hidden">🔍</span>
+                <span className="hidden sm:inline">搜索</span>
+              </button>
+            </form>
 
             {/* 发布按钮 */}
             <Link
