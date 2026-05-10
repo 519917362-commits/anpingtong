@@ -39,104 +39,63 @@ export default function Layout() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Web端顶部条幅广告1 - 仅在桌面端显示 */}
-      <div className="hidden md:block">
-        <div className="relative overflow-hidden">
-          <img 
-            src="/images/banner1.gif" 
-            alt="Banner招聘"
-            className="w-full h-16 object-cover"
-          />
-        </div>
-      </div>
-
-      {/* Web端顶部条幅广告2 - 仅在桌面端显示 */}
-      <div className="hidden md:block">
-        <div className="relative overflow-hidden">
-          <img 
-            src="/images/banner2.gif" 
-            alt="Banner商家"
-            className="w-full h-16 object-cover"
-          />
-        </div>
-      </div>
-
-      {/* 公告栏 - 所有页面显示 */}
-      {notice && (
-        <div className="bg-amber-500 text-white">
-          <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-3">
-            <span className="bg-white text-amber-500 font-bold text-xs px-2 py-0.5 rounded">📢 公告</span>
-            <Link to={`/notice/${notice.id}`} className="flex-1 truncate hover:text-amber-100 transition">
-              {notice.title}
-            </Link>
-            <span className="text-xs text-amber-200">查看详情 →</span>
-          </div>
-        </div>
-      )}
-
+    <div className="min-h-screen bg-gray-100">
       {/* 顶部栏 */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        {/* 顶部小栏 - 移动端简化 */}
-        <div className="bg-gray-900 text-white text-xs">
-          <div className="max-w-6xl mx-auto px-4 py-1.5 flex justify-between items-center">
-            <span className="hidden sm:inline">欢迎访问安平同城网</span>
-            <span className="sm:hidden">安平同城网</span>
-            <div className="flex items-center gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <span className="text-blue-600 text-2xl font-bold">logo</span>
+              <span className="font-bold text-xl text-gray-900">安平同城</span>
+            </Link>
+
+            {/* 定位 */}
+            <div className="hidden sm:flex items-center gap-1 text-gray-600 text-sm shrink-0">
+              <span>📍</span>
+              <span>安平县</span>
+              <span className="text-gray-400">▼</span>
+            </div>
+
+            {/* 搜索框 */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-2xl flex border border-gray-200 rounded-full overflow-hidden">
+              <input
+                value={keyword}
+                onChange={e => setKeyword(e.target.value)}
+                placeholder="搜职位、找房、找二手..."
+                className="flex-1 px-4 py-2.5 text-sm outline-none min-w-0"
+              />
+              <button type="submit" className="bg-gray-100 px-4 text-gray-500 hover:bg-gray-200 transition shrink-0">
+                <span className="text-lg">🔍</span>
+              </button>
+            </form>
+
+            {/* 免费发布按钮 */}
+            <Link
+              to={user ? '/post-create' : '/login'}
+              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition shrink-0 shadow-md flex items-center gap-1"
+            >
+              <span>+</span>
+              <span>免费发布</span>
+            </Link>
+
+            {/* 登录 */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                <span>👤</span>
+              </div>
               {!user ? (
-                <>
-                  <Link to="/login" className="hover:text-gray-300 text-xs">登录</Link>
-                  <Link to="/register" className="hover:text-gray-300 text-xs">注册</Link>
-                </>
+                <Link to="/login" className="text-gray-600 text-sm hover:text-blue-600 transition hidden sm:block">登录</Link>
               ) : (
-                <span className="flex items-center gap-2">
-                  <span className="text-gray-300 text-xs hidden sm:inline">👤 {user.username}</span>
-                  <button onClick={handleLogout} className="hover:text-gray-300 text-xs">退出</button>
-                </span>
+                <button onClick={handleLogout} className="text-gray-600 text-sm hover:text-blue-600 transition">退出</button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Logo + 搜索 + 发布按钮 - 与分类资讯样式一致 */}
-        <div className="max-w-6xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3 sm:gap-6">
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <span className="text-2xl sm:text-3xl">🏠</span>
-              <div className="hidden sm:block">
-                <div className="font-bold text-lg text-gray-900">安平同城网</div>
-                <div className="text-xs text-gray-400">便民信息平台</div>
-              </div>
-            </Link>
-
-            {/* 搜索框 - 所有页面显示 */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-xl flex border border-gray-200 rounded-full overflow-hidden">
-              <input
-                value={keyword}
-                onChange={e => setKeyword(e.target.value)}
-                placeholder="搜索信息..."
-                className="flex-1 px-3 py-2 text-sm outline-none min-w-0"
-              />
-              <button type="submit" className="bg-gradient-to-r from-blue-600 to-cyan-500 px-3 sm:px-5 text-white text-sm hover:opacity-90 transition shrink-0">
-                <span className="sm:hidden">🔍</span>
-                <span className="hidden sm:inline">搜索</span>
-              </button>
-            </form>
-
-            {/* 发布按钮 */}
-            <Link
-              to={user ? '/post-create' : '/login'}
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 sm:px-6 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition shrink-0 shadow-md"
-            >
-              <span className="sm:hidden">+</span>
-              <span className="hidden sm:inline">+ 免费发布</span>
-            </Link>
-          </div>
-        </div>
-
         {/* 导航分类 - 桌面端顶部导航 */}
         <nav className="border-t border-gray-100 hidden md:block">
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4">
             <div className="flex gap-1 text-sm">
               {NAV_ITEMS.map(item => (
                 <Link
@@ -156,8 +115,8 @@ export default function Layout() {
         </nav>
       </header>
 
-      {/* 主内容 - 移动端预留底部导航空间 */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 mb-16 md:mb-0">
+      {/* 主内容 */}
+      <main className="max-w-7xl mx-auto px-4 py-4 mb-16 md:mb-0">
         <Outlet />
       </main>
 
@@ -183,7 +142,7 @@ export default function Layout() {
 
       {/* 页脚 */}
       <footer className="bg-gray-800 text-gray-400 text-xs mt-8 pb-20 md:pb-8">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div>
               <div className="text-white text-sm font-medium mb-2">安平同城网</div>
