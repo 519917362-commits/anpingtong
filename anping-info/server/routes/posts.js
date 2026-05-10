@@ -15,10 +15,10 @@ router.get('/categories', (req, res) => {
   }
 })
 
-// 获取帖子列表（支持分类筛选、搜索、分页）
+// 获取帖子列表（支持分类筛选、搜索、分页、置顶筛选）
 router.get('/', (req, res) => {
   try {
-    const { category, keyword, page = 1, pageSize = 20, status = 'approved' } = req.query
+    const { category, keyword, page = 1, pageSize = 20, status = 'approved', type } = req.query
     const offset = (page - 1) * pageSize
 
     let sql = `
@@ -40,13 +40,24 @@ router.get('/', (req, res) => {
       params.push(category)
     }
 
+    if (type === 'top') {
+      sql += ' AND p.type = ?'
+      params.push('top')
+    }
+
     if (keyword) {
       sql += ' AND (p.title LIKE ? OR p.content LIKE ?)'
       params.push(`%${keyword}%`, `%${keyword}%`)
     }
 
     const total = db.prepare(`SELECT COUNT(*) as cnt FROM (${sql})`).get(...params)
-    sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?'
+    
+    // 置顶帖子优先显示
+    if (type === 'top') {
+      sql += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?'
+    } else {
+      sql += ' ORDER BY CASE WHEN p.type = \'top\' THEN 0 ELSE 1 END, p.created_at DESC LIMIT ? OFFSET ?'
+    }
     params.push(Number(pageSize), Number(offset))
 
     const posts = db.prepare(sql).all(...params)
