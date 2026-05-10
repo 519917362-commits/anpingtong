@@ -15,6 +15,18 @@ const PROPERTY_TYPES = [
   { id: 'parking', name: '车位', icon: '🅿️' },
 ]
 
+const AREAS = [
+  { id: 'all', name: '全部区域' },
+  { id: 'chengguan', name: '县城' },
+  { id: 'gyyq', name: '工业园区' },
+  { id: 'jjkfq', name: '经济开发区' },
+  { id: 'sjs', name: '孙遥城' },
+  { id: 'wx', name: '王胡林' },
+  { id: 'dq', name: '东黄城' },
+  { id: 'md', name: '马店' },
+  { id: 'nw', name: '南王庄' },
+]
+
 const PRICE_RANGES = [
   { id: 'all', name: '不限' },
   { id: '0-1000', name: '1000元以下' },
@@ -69,8 +81,8 @@ export default function RealEstate() {
   const navigate = useNavigate()
 
   const currentType = searchParams.get('type') || 'all'
-  const currentPrice = searchParams.get('price') || 'all'
   const currentArea = searchParams.get('area') || 'all'
+  const currentPrice = searchParams.get('price') || 'all'
   const currentSort = searchParams.get('sort') || 'default'
   const keyword = searchParams.get('keyword') || ''
 
@@ -78,7 +90,7 @@ export default function RealEstate() {
 
   useEffect(() => {
     fetchPosts()
-  }, [currentType, currentPrice, currentArea, currentSort, keyword])
+  }, [currentType, currentArea, currentPrice, currentSort, keyword])
 
   const fetchPosts = async () => {
     setLoading(true)
@@ -115,6 +127,26 @@ export default function RealEstate() {
             default: return true
           }
         })
+      }
+      
+      if (currentArea !== 'all') {
+        const areaNames = {
+          'chengguan': ['县城', '中心', '城里'],
+          'gyyq': ['园区', '工业园'],
+          'jjkfq': ['开发区', '经济'],
+          'sjs': ['孙遥', '孙姚'],
+          'wx': ['王胡', '王护'],
+          'dq': ['东黄'],
+          'md': ['马店'],
+          'nw': ['南王'],
+        }
+        const searchTerms = areaNames[currentArea] || []
+        if (searchTerms.length > 0) {
+          allPosts = allPosts.filter(post => {
+            const location = ((post.location || '') + (post.title || '')).toLowerCase()
+            return searchTerms.some(term => location.includes(term.toLowerCase()))
+          })
+        }
       }
       
       if (currentPrice !== 'all') {
@@ -247,7 +279,7 @@ export default function RealEstate() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="text-gray-500 text-sm">筛选:</span>
-            {(currentPrice !== 'all' || currentArea !== 'all' || currentSort !== 'default') && (
+            {(currentPrice !== 'all' || currentArea !== 'all' || currentSort !== 'default' || currentType !== 'all') && (
               <button
                 onClick={clearFilters}
                 className="text-xs text-red-500 hover:underline"
@@ -260,9 +292,29 @@ export default function RealEstate() {
             onClick={() => setShowFilters(!showFilters)}
             className="text-sm text-blue-600 flex items-center gap-1"
           >
-            <span>更多筛选</span>
+            <span>{showFilters ? '收起筛选' : '更多筛选'}</span>
             <span>{showFilters ? '▲' : '▼'}</span>
           </button>
+        </div>
+
+        {/* 区域筛选 */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-gray-500 text-sm w-12 shrink-0">区域:</span>
+          <div className="flex flex-wrap gap-2">
+            {AREAS.map(area => (
+              <button
+                key={area.id}
+                onClick={() => updateFilter('area', area.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs transition ${
+                  currentArea === area.id
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {area.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* 价格筛选 */}

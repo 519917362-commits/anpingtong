@@ -11,13 +11,6 @@ const CATEGORY_ICONS = {
 
 const QUICK_CATEGORIES = [
   { name: '房产', slug: 'real-estate', icon: '🏠', color: 'from-orange-500 to-red-500', highlight: true },
-  { name: '招聘求职', slug: 'jobs-recruit', icon: '💼', color: 'from-red-500 to-pink-500' },
-  { name: '二手市场', slug: 'secondhand', icon: '🔄', color: 'from-yellow-500 to-green-500' },
-  { name: '本地服务', slug: 'door-service', icon: '🔧', color: 'from-teal-500 to-cyan-500' },
-  { name: '车辆买卖', slug: 'vehicle', icon: '🚗', color: 'from-cyan-500 to-blue-500' },
-  { name: '丝网产业', slug: 'wiremesh-product', icon: '🕸️', color: 'from-blue-500 to-purple-500' },
-  { name: '商家店铺', slug: 'companies', icon: '🏢', color: 'from-purple-500 to-indigo-500' },
-  { name: '最新资讯', slug: 'news', icon: '📰', color: 'from-pink-500 to-rose-500' },
 ]
 
 function timeAgo(dateStr) {
@@ -155,25 +148,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 分类导航 - 58风格 */}
+          {/* 分类导航 */}
           <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-              {QUICK_CATEGORIES.map(cat => (
-                <Link
-                  key={cat.slug}
-                  to={cat.slug === 'real-estate' ? '/real-estate' : `/category/${cat.slug}`}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition group ${
-                    cat.highlight ? 'ring-2 ring-red-300 ring-offset-2' : ''
-                  }`}
-                >
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition-transform`}>
-                    {cat.icon}
-                  </div>
-                  <span className={`text-xs font-medium ${cat.highlight ? 'text-red-500' : 'text-gray-700'}`}>
-                    {cat.name}
-                  </span>
-                </Link>
-              ))}
+            <div className="flex justify-center">
+              <Link
+                to="/real-estate"
+                className={`flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-gray-50 transition group ${
+                  'highlight' ? 'ring-2 ring-red-300 ring-offset-2' : ''
+                }`}
+              >
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform">
+                  🏠
+                </div>
+                <span className="text-lg font-bold text-red-500">房产</span>
+                <span className="text-xs text-gray-400">租房·买房·商铺·厂房</span>
+              </Link>
             </div>
           </div>
 
