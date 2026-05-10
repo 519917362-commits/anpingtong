@@ -85,8 +85,19 @@ export default function SoundBarrierCalculator() {
   return (
     <div>
       <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-5 text-white mb-6">
-        <h1 className="text-lg font-bold mb-1">🔊 声屏障报价计算器</h1>
-        <p className="text-sm opacity-90">专业声屏障工程报价参考，适用于公路、铁路、小区隔音墙</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold mb-1">🔊 声屏障报价计算器</h1>
+            <p className="text-sm opacity-90">专业声屏障工程报价参考，适用于公路、铁路、小区隔音墙</p>
+          </div>
+          <a
+            href="/tools/sound-barrier-pro"
+            className="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition flex items-center gap-1.5"
+          >
+            <span>🚀</span>
+            <span>高级版</span>
+          </a>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
