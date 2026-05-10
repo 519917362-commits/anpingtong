@@ -19,6 +19,11 @@ const QUICK_CATEGORIES = [
   { name: '商务服务', slug: 'business', icon: '💼', color: 'from-indigo-500 to-purple-500' },
 ]
 
+const TOOLS_ENTRY = [
+  { name: '丝网报价', icon: '🛠️', path: '/tools/wiremesh', color: 'from-purple-500 to-pink-500' },
+  { name: '声屏障计算', icon: '🔊', path: '/tools/sound-barrier', color: 'from-blue-500 to-cyan-500' },
+]
+
 const SECTION_CONFIG = [
   { key: 'jobs', icon: '💼', title: '招聘求职', link: '/category/jobs-recruit', color: 'from-red-500 to-pink-500' },
   { key: 'house', icon: '🏠', title: '房屋租售', link: '/real-estate', color: 'from-orange-500 to-red-500' },
@@ -150,6 +155,36 @@ export default function Home() {
                   <span className={`text-xs font-medium ${cat.highlight ? 'text-red-500' : 'text-gray-700'}`}>
                     {cat.name}
                   </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 实用工具入口 */}
+          <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 text-white">
+                <span className="text-xl">🛠️</span>
+                <span className="font-bold">实用工具</span>
+              </div>
+              <Link to="/tools" className="text-white/80 text-xs hover:text-white">
+                更多工具 →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {TOOLS_ENTRY.map(tool => (
+                <Link
+                  key={tool.path}
+                  to={tool.path}
+                  className="bg-white/20 backdrop-blur rounded-xl p-3 flex items-center gap-3 hover:bg-white/30 transition"
+                >
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center text-2xl shadow-md`}>
+                    {tool.icon}
+                  </div>
+                  <div className="text-white">
+                    <div className="font-bold text-sm">{tool.name}</div>
+                    <div className="text-xs text-white/80">免费使用</div>
+                  </div>
                 </Link>
               ))}
             </div>
