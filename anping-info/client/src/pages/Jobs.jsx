@@ -10,6 +10,14 @@ const SALARY_OPTIONS = [
   { label: '8000-15000', value: '8000-15000' },
   { label: '15000以上', value: '15000-999999' },
 ]
+const JOB_TYPE_OPTIONS = [
+  '普工/车间工', '丝网报价员', '内贸业务员', '外贸业务员', '丝网技工/技工',
+  '拔丝/退火/看炉工', '电焊/二保/氩弧焊', '店长/厂长/经理', '会计/财务',
+  '设计/网络运营', '销售/营业员', '化妆/美发', '司机/保安', '维修工人',
+  '零工/计件/学徒', '洗车美容工', '教师/护士', '织网/整经工', '库管/质检',
+  '快递员/送货员', '客服/文员', '其他职位', '收银/服务员', '做饭/厨师',
+  '保洁/门卫', '抻网工', '抖音快手主播'
+]
 const SALARY_TYPE_LABELS = { month: '元/月', hour: '元/小时', day: '元/天', negotiable: '面议' }
 
 function formatSalary(min, max, type) {
@@ -38,11 +46,13 @@ export default function Jobs() {
   const [keyword, setKeyword] = useState('')
   const [location, setLocation] = useState('全部')
   const [salaryRange, setSalaryRange] = useState('all')
+  const [jobType, setJobType] = useState('')
+  const [showAllJobTypes, setShowAllJobTypes] = useState(false)
   const [total, setTotal] = useState(0)
 
   const fetchJobs = () => {
     setLoading(true)
-    const params = new URLSearchParams({ category: 'job', pageSize: 50, status: 'approved' })
+    const params = new URLSearchParams({ category: 'jobs-recruit', pageSize: 50, status: 'approved' })
     if (keyword) params.set('keyword', keyword)
 
     Promise.all([
@@ -63,6 +73,9 @@ export default function Jobs() {
             return jMin >= min
           })
         }
+        if (jobType) {
+          jobs = jobs.filter(j => j.job_type === jobType)
+        }
         setPosts(jobs)
         setTotal(postData.data.total)
       }
@@ -73,7 +86,7 @@ export default function Jobs() {
   }
 
   useEffect(() => { fetchJobs() }, [])
-  useEffect(() => { fetchJobs() }, [location, salaryRange])
+  useEffect(() => { fetchJobs() }, [location, salaryRange, jobType])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -138,6 +151,58 @@ export default function Jobs() {
             </button>
           ))}
         </div>
+
+        {/* 岗位类型筛选 */}
+        <div className="mt-2">
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-gray-400 self-center shrink-0">岗位：</span>
+            {showAllJobTypes ? (
+              <>
+                {JOB_TYPE_OPTIONS.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setJobType(jobType === type ? '' : type)}
+                    className={`px-3 py-1 text-xs rounded-full transition ${
+                      jobType === type
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setShowAllJobTypes(false)}
+                  className="px-3 py-1 text-xs text-orange-500 hover:text-orange-600"
+                >
+                  收起 ↑
+                </button>
+              </>
+            ) : (
+              <>
+                {JOB_TYPE_OPTIONS.slice(0, 10).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setJobType(jobType === type ? '' : type)}
+                    className={`px-3 py-1 text-xs rounded-full transition ${
+                      jobType === type
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setShowAllJobTypes(true)}
+                  className="px-3 py-1 text-xs text-orange-500 hover:text-orange-600"
+                >
+                  更多岗位 ↓
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -149,7 +214,7 @@ export default function Jobs() {
             <div className="text-center py-12 text-gray-400 bg-white rounded-xl">
               <div className="text-4xl mb-2">💼</div>
               <p>暂无符合条件的职位</p>
-              <button onClick={() => { setKeyword(''); setLocation('全部'); setSalaryRange('all'); }} className="mt-3 text-primary text-sm hover:underline">清除筛选</button>
+              <button onClick={() => { setKeyword(''); setLocation('全部'); setSalaryRange('all'); setJobType(''); }} className="mt-3 text-primary text-sm hover:underline">清除筛选</button>
             </div>
           ) : posts.map(post => (
             <Link

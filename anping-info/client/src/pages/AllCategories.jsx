@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
-// 所有分类配置（14个）
 const ALL_CATEGORIES = [
-  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'from-orange-50 to-orange-100 border-orange-200', desc: '找工作/招人才' },
-  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'from-blue-50 to-blue-100 border-blue-200', desc: '租房/买房/商铺' },
-  { slug: 'secondhand', name: '二手买卖', icon: '🔄', color: 'from-yellow-50 to-yellow-100 border-yellow-200', desc: '闲置物品交易' },
-  { slug: 'shop-transfer', name: '旺铺转让', icon: '🏪', color: 'from-pink-50 to-pink-100 border-pink-200', desc: '店铺转让/出租' },
-  { slug: 'vehicle', name: '车辆交易', icon: '🚗', color: 'from-green-50 to-green-100 border-green-200', desc: '汽车/电动车' },
-  { slug: 'discounts', name: '优惠信息', icon: '🎁', color: 'from-rose-50 to-rose-100 border-rose-200', desc: '商家促销/打折' },
-  { slug: 'education', name: '教育培训', icon: '📚', color: 'from-indigo-50 to-indigo-100 border-indigo-200', desc: '培训/家教/课程' },
-  { slug: 'electronics', name: '家电数码', icon: '📱', color: 'from-cyan-50 to-cyan-100 border-cyan-200', desc: '手机/电脑/家电' },
-  { slug: 'qa', name: '全城知道', icon: '🔮', color: 'from-violet-50 to-violet-100 border-violet-200', desc: '问答/求助/打听' },
-  { slug: 'tools', name: '便民查询', icon: '🔎', color: 'from-sky-50 to-sky-100 border-sky-200', desc: '电话/快递/区号' },
-  { slug: 'business', name: '商业服务', icon: '🛠️', color: 'from-purple-50 to-purple-100 border-purple-200', desc: '工商财税/广告' },
-  { slug: 'life', name: '生活服务', icon: '☕', color: 'from-red-50 to-red-100 border-red-200', desc: '家政/维修/美容' },
-  { slug: 'home-materials', name: '家居建材', icon: '🏗️', color: 'from-amber-50 to-amber-100 border-amber-200', desc: '建材/家具/装饰' },
-  { slug: 'other', name: '其他信息', icon: '📌', color: 'from-gray-50 to-gray-100 border-gray-200', desc: '寻人/寻物/打听' },
+  { slug: 'jobs-recruit', name: '招聘求职', icon: '💼', color: 'from-red-50 to-red-100 border-red-200', desc: '企业招人·个人求职' },
+  { slug: 'house', name: '房屋租售', icon: '🏠', color: 'from-orange-50 to-orange-100 border-orange-200', desc: '租房·买房·商铺' },
+  { slug: 'door-service', name: '上门服务', icon: '🔧', color: 'from-amber-50 to-amber-100 border-amber-200', desc: '保洁·搬家·维修' },
+  { slug: 'shop-transfer', name: '招商转让', icon: '🏪', color: 'from-lime-50 to-lime-100 border-lime-200', desc: '旺铺转让·合伙创业' },
+  { slug: 'secondhand', name: '闲置物品', icon: '🔄', color: 'from-green-50 to-green-100 border-green-200', desc: '二手买卖·以物换物' },
+  { slug: 'news', name: '新鲜事', icon: '📰', color: 'from-emerald-50 to-emerald-100 border-emerald-200', desc: '本地资讯·热门话题' },
+  { slug: 'wechat-group', name: '本地微信群', icon: '💬', color: 'from-teal-50 to-teal-100 border-teal-200', desc: '微信群·社区交流' },
+  { slug: 'companies', name: '同城商家', icon: '🏢', color: 'from-cyan-50 to-cyan-100 border-cyan-200', desc: '本地商家·企业黄页' },
+  { slug: 'wiremesh-machine', name: '丝网机械', icon: '⚙️', color: 'from-slate-100 to-slate-200 border-slate-300', desc: '机械设备供应' },
+  { slug: 'wiremesh-material', name: '原材料供应', icon: '🔩', color: 'from-zinc-100 to-zinc-200 border-zinc-300', desc: '钢丝·钢材·原材料' },
+  { slug: 'wiremesh-product', name: '丝网制品', icon: '🕸️', color: 'from-gray-100 to-gray-200 border-gray-300', desc: '勾花网·电焊网·冲孔网' },
+  { slug: 'wiremesh-price', name: '丝网报价', icon: '📊', color: 'from-stone-100 to-stone-200 border-stone-300', desc: '每日行情报价' },
+  { slug: 'vehicle', name: '车辆服务', icon: '🚗', color: 'from-yellow-50 to-yellow-100 border-yellow-200', desc: '汽车·电动车' },
+  { slug: 'discounts', name: '优惠促销', icon: '🎁', color: 'from-pink-50 to-pink-100 border-pink-200', desc: '商家促销·打折' },
 ]
 
 export default function AllCategories() {
@@ -24,7 +23,6 @@ export default function AllCategories() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 获取每个分类的最新帖子数量
     const fetchCounts = async () => {
       const counts = {}
       await Promise.all(
@@ -48,19 +46,17 @@ export default function AllCategories() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-blue-400 rounded-xl p-6 text-white mb-4">
+      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl p-6 text-white mb-4">
         <h1 className="text-xl font-bold mb-1">📂 全部分类</h1>
         <p className="opacity-90 text-sm">浏览所有信息分类</p>
       </div>
 
-      {/* 分类网格 */}
       <div className="grid grid-cols-3 gap-3">
         {ALL_CATEGORIES.map(cat => (
           <Link
             key={cat.slug}
             to={`/category/${cat.slug}`}
-            className={`card-hover bg-gradient-to-br ${cat.color} border rounded-xl p-4 flex flex-col items-center gap-2 text-center`}
+            className={`bg-gradient-to-br ${cat.color} border rounded-xl p-4 flex flex-col items-center gap-2 text-center`}
           >
             <span className="text-3xl">{cat.icon}</span>
             <span className="text-sm font-medium text-gray-800">{cat.name}</span>
@@ -74,10 +70,9 @@ export default function AllCategories() {
         ))}
       </div>
 
-      {/* 底部导航提示 */}
       <div className="mt-6 text-center text-sm text-gray-400">
         <p>没有找到想要的？试试搜索 🔍</p>
-        <Link to="/search" className="text-primary hover:underline mt-1 inline-block">
+        <Link to="/search" className="text-blue-500 hover:underline mt-1 inline-block">
           进入搜索页面 →
         </Link>
       </div>

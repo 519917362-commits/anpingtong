@@ -13,6 +13,7 @@ import ToolsHome from './pages/tools/ToolsHome'
 import LogisticsTool from './pages/tools/LogisticsTool'
 import WiremeshTool from './pages/tools/WiremeshTool'
 import MaterialsTool from './pages/tools/MaterialsTool'
+import SoundBarrierTool from './pages/tools/SoundBarrierTool'
 import Jobs from './pages/Jobs'
 import JobDetail from './pages/JobDetail'
 import Companies from './pages/Companies'
@@ -21,6 +22,10 @@ import Notices from './pages/Notices'
 import NoticeDetail from './pages/NoticeDetail'
 import StaticPage from './pages/StaticPage'
 import AllCategories from './pages/AllCategories'
+import YellowPages from './pages/YellowPages'
+import CityHouse from './pages/CityHouse'
+import RealEstate from './pages/RealEstate'
+import RealEstateList from './pages/RealEstateList'
 
 export default function App() {
   return (
@@ -30,6 +35,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="all-categories" element={<AllCategories />} />
+            <Route path="categories" element={<AllCategories />} />
             <Route path="category/:slug" element={<Category />} />
             <Route path="post/:id" element={<PostDetail />} />
             <Route path="post-create" element={<PostCreate />} />
@@ -41,6 +47,7 @@ export default function App() {
             <Route path="tools/logistics" element={<LogisticsTool />} />
             <Route path="tools/wiremesh" element={<WiremeshTool />} />
             <Route path="tools/materials" element={<MaterialsTool />} />
+            <Route path="tools/sound-barrier" element={<SoundBarrierTool />} />
             {/* 招聘专区 */}
             <Route path="jobs" element={<Jobs />} />
             <Route path="job/:id" element={<JobDetail />} />
@@ -52,6 +59,12 @@ export default function App() {
             <Route path="notice/:id" element={<NoticeDetail />} />
             {/* 静态页面 */}
             <Route path="page/:slug" element={<StaticPage />} />
+            {/* 安平黄页 */}
+            <Route path="yellow-pages" element={<YellowPages />} />
+            {/* 同城房产 */}
+            <Route path="real-estate" element={<RealEstate />} />
+            <Route path="real-estate/:type" element={<RealEstateList />} />
+            <Route path="city-house" element={<CityHouse />} />
           </Route>
         </Routes>
       </AuthProvider>
